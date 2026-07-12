@@ -13,7 +13,7 @@ The application uses state-of-the-art Large Language Models (LLMs) to retrieve r
 - **Dockerized Deployment:** Ready to be deployed instantly on AWS EC2 or any other cloud provider via Docker Compose.
 
 ## 🛠️ Tech Stack
-- **Frontend:** React, Vite, Tailwind CSS, Lucide Icons
+- **Frontend:** HTML, Vanilla JavaScript, Tailwind CSS (via CDN), served by FastAPI/Jinja2
 - **Backend:** Python, FastAPI, Uvicorn, Gunicorn
 - **AI/ML:** LangChain, OpenAI API (via GitHub Models endpoint), PyTorch (CPU-optimized), Sentence-Transformers (Reranking)
 - **Database:** PostgreSQL (with `pgvector` extension)
@@ -51,20 +51,11 @@ GITHUB_TOKEN="your_github_or_azure_token"
 ```
 
 ### 3. Run with Docker Compose
-To boot up both the FastAPI backend and the PostgreSQL Vector Database:
+To boot up both the FastAPI backend (which serves the frontend UI) and the PostgreSQL Vector Database:
 ```bash
 docker compose up --build -d
 ```
-The API will be available at `http://localhost:5001`.
-
-### 4. Run the Frontend
-In a new terminal window, start the React Vite server:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-The beautiful frontend will be running at `http://localhost:5173`.
+The application will be available at `http://localhost:5001`.
 
 ## ☁️ Deployment (AWS EC2)
 
