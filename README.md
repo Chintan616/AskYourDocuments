@@ -9,7 +9,7 @@ The application uses state-of-the-art Large Language Models (LLMs) to retrieve r
 - **Advanced RAG Architecture:** Utilizes intelligent chunking, vector similarity search, and cross-encoder reranking to ensure highly accurate answers.
 - **Cloud Storage Integration:** Automatically stages and stores uploaded documents securely in Amazon S3.
 - **Vector Database:** Uses PostgreSQL with `pgvector` to store and quickly search document embeddings.
-- **Beautiful UI:** A stunning, fully responsive React frontend featuring dark mode, glassmorphism aesthetics, and smooth animations.
+- **Beautiful UI:** A stunning, fully responsive frontend featuring dark mode, glassmorphism aesthetics, and smooth animations.
 - **Dockerized Deployment:** Ready to be deployed instantly on AWS EC2 or any other cloud provider via Docker Compose.
 
 ## 🛠️ Tech Stack
