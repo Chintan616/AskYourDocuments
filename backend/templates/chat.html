@@ -1,0 +1,1883 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application - Dark Theme</title>
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Added Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Dark theme tooltip styling from upload.html */
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            background-color: #333333; /* Dark gray background for tooltip */
+            color: #E0E0E0;       /* Light text for tooltip */
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        [data-tooltip] {
+            position: relative;
+        }
+
+        /* Icon sizes from upload.html */
+        .icon-sm { width: 1rem; height: 1rem; } /* size-4 */
+        .icon-md { width: 1.25rem; height: 1.25rem; } /* size-5 */
+
+        /* Dark Theme Color Definitions from upload.html (redefining shadcn/ui like classes for dark mode) */
+        .bg-primary { background-color: #F0F0F0; } /* Send button background (light) */
+        .text-primary-foreground { color: #1C1C1C; } /* Send button icon color (dark) */
+        .hover\:bg-primary\/90:hover { background-color: #DCDCDC; } /* Send button hover - Fixed selector */
+        
+        .bg-secondary { background-color: #2A2A2A; } /* File tag background */
+        .text-secondary-foreground { color: #B0B0B0; } /* File tag text color */
+        
+        /* Attach icon button hover background from upload.html */
+        .hover\:bg-secondary-foreground\/10:hover { background-color: #2A2A2A; } /* Fixed selector */
+
+        .border-input { border-color: rgba(255, 255, 255, 0.2); } /* Input container border - more white */
+        .bg-background { background-color: #1C1C1C; } /* Input container background */
+        .text-primary { color: #E0E0E0 !important; } /* Main text color for new input elements */
+
+        /* Placeholder text color for textarea from upload.html */
+        textarea::placeholder {
+            color: #808080; /* Muted gray for placeholder */
+            opacity: 1; /* Ensure visibility */
+        }
+        textarea:-ms-input-placeholder { /* IE 10-11 */
+           color: #808080;
+        }
+        textarea::-ms-input-placeholder { /* Edge */
+           color: #808080;
+        }
+
+        /* Custom styling for file input from upload.html */
+        input[type="file"].hidden-file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Original chat.html styles below */        /* Dark Theme CSS Variables */
+        :root {
+            --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";            /* Overall Dark Theme */
+            --color-page-bg: #121212; /* Very dark page background - image implies this */
+            --color-container-bg: #121212; /* Chat container background - main chat area bg, pitch black */
+            --color-text-primary: #E0E0E0; /* Primary text (light) */
+            --color-text-secondary: #A0A0A0; /* Secondary text (icons, placeholders) */
+            --color-text-on-light-bg: #1E1E1E; /* Text for light backgrounds (e.g., user bubble, send button) */
+
+            /* Message Bubbles - Enhanced with more vibrant gradients */
+            --color-ai-bubble-bg: #2D2D2D;    
+            --color-ai-bubble-gradient: linear-gradient(135deg, #2D2D2D 0%, #383838 100%);
+            --color-user-bubble-bg: #FFFFFF;  
+            --color-user-bubble-gradient: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%); /* New vibrant gradient */
+            
+            /* Enhanced Colors for Accents - More vibrant palette */
+            --color-accent-blue: #4776E6;
+            --color-accent-purple: #8E54E9;
+            --color-accent-teal: #38b2ac;
+            --color-accent-pink: #e95494;
+            --color-accent-orange: #FF8B13;
+            --color-accent-green: #2ecc71;
+            
+            /* New modern colors for cards and UI elements */
+            --color-card-gradient-1: linear-gradient(135deg, rgba(71, 118, 230, 0.1) 0%, rgba(142, 84, 233, 0.1) 100%);
+            --color-card-gradient-2: linear-gradient(135deg, rgba(56, 178, 172, 0.1) 0%, rgba(71, 118, 230, 0.1) 100%);
+            --color-card-border-glow: rgba(142, 84, 233, 0.3);
+            
+            /* Glass effect colors */
+            --color-glass-bg: rgba(30, 30, 30, 0.5);
+            --color-glass-border: rgba(255, 255, 255, 0.1);
+            --color-glass-highlight: rgba(255, 255, 255, 0.05);
+            --border-radius-lg: 0.5rem;
+            --border-radius-md: 0.375rem;
+            --border-radius-xs: 0.2rem;
+            --border-radius-full: 9999px;
+
+            --shared-container-height: 580px; /* Added shared height */
+        }body {
+            font-family: var(--font-family-sans);
+            background-color: var(--color-page-bg); /* Page background */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: var(--color-text-primary); /* Default text color for the page */
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the start for consistent height behavior */
+        }        .chat-container {
+            width: 100%;
+            max-width: 750px; /* Smaller box width */
+            height: var(--shared-container-height); /* USE VARIABLE */
+            border: 1px solid var(--color-glass-border);
+            background-color: var(--color-glass-bg) !important; 
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-bottom: 0;
+            position: relative; /* For absolute positioning of canvas */
+            margin-left: 32px; /* Move chat background to the right */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: container-fade-in 0.8s ease-out forwards;
+        }
+        
+        @keyframes container-fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Canvas styles for the flickering grid */
+        .chat-container canvas {
+            display: block;
+            pointer-events: none; /* Make canvas non-interactive */
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind content */
+            border-radius: var(--border-radius-lg); /* Match container border radius */
+        }
+
+        /* Message List Area */        .message-list-area {
+            flex: 1 1 0%;
+            position: relative;
+            overflow: hidden;
+            bottom: 0px;
+            z-index: 1; /* Ensure above canvas */ 
+            width: 100%; /* Ensure full width */
+            box-sizing: border-box; /* Consistent sizing model */
+        }
+
+        .message-list {
+            height: 100%;
+            padding: 1rem; /* p-4 */
+            padding-bottom: 0px; /* Adjust as needed to match input area height */
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Ensure proper stacking context */
+            scrollbar-width: none; /* Firefox - hide scrollbar */
+            -ms-overflow-style: none;  /* IE and Edge - hide scrollbar */
+            width: 100%; /* Ensure full width */
+            box-sizing: border-box; /* Consistent sizing model */
+            scrollbar-gutter: stable; /* Reserve space for the gutter */
+        }
+        
+        /* Webkit Scrollbar Styles */
+        .message-list::-webkit-scrollbar {
+            display: none; /* Webkit - hide scrollbar */
+        }
+
+        .message-items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: auto;
+        }        /* Individual Chat Bubble */
+        .chat-bubble {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp var(--transition-normal) forwards;
+            position: relative;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble.sent {
+            flex-direction: row-reverse;
+        }
+        
+        /* Add animation delay to sequence multiple messages */
+        .chat-bubble:nth-child(1) { animation-delay: 0.05s; }
+        .chat-bubble:nth-child(2) { animation-delay: 0.1s; }
+        .chat-bubble:nth-child(3) { animation-delay: 0.15s; }
+        .chat-bubble:nth-child(4) { animation-delay: 0.2s; }
+        .chat-bubble:nth-child(5) { animation-delay: 0.25s; }        .chat-bubble-avatar {
+            height: 38px;
+            width: 38px;
+            flex-shrink: 0;
+            border-radius: var(--border-radius-full);
+            overflow: hidden;
+            background-color: var(--color-ai-bubble-bg); /* Fallback BG */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--color-text-primary); /* Fallback text color */
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+        }
+
+        .chat-bubble.received .chat-bubble-avatar {
+            background: linear-gradient(135deg, #2D2D2D 0%, #383838 100%);
+        }
+        
+        .chat-bubble.sent .chat-bubble-avatar {
+            background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+        }
+        
+        .chat-bubble:hover .chat-bubble-avatar {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* AI avatar pulse animation */
+        .chat-bubble.received .chat-bubble-avatar svg {
+            animation: subtle-pulse 3s infinite ease-in-out;
+        }
+        
+        @keyframes subtle-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .chat-bubble-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .chat-bubble-avatar .fallback-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-ai-bubble-bg); /* Ensure fallback has background */
+        }
+
+        .chat-bubble.sent .chat-bubble-avatar .fallback-text {
+            background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+        }        .chat-bubble-message {
+            border-radius: var(--border-radius-lg);
+            padding: 1rem;
+            max-width: 75%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Add subtle grid pattern to chat bubbles */
+        .chat-bubble-message::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 12px 12px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .chat-bubble:hover .chat-bubble-message {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Apply ripple effect on click */
+        .chat-bubble-message.ripple::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.4);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 0 0;
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0) translate(-50%, -50%);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(100, 100) translate(-50%, -50%);
+                opacity: 0;
+            }
+        }
+
+        .chat-bubble.received .chat-bubble-message {
+            background-image: var(--color-ai-bubble-gradient);
+            color: var(--color-text-primary);
+            border-top-left-radius: 4px;
+            border-left: 2px solid var(--color-accent-blue);
+        }
+
+        .chat-bubble.sent .chat-bubble-message {
+            background-image: var(--color-user-bubble-gradient);
+            color: white;
+            border-top-right-radius: 4px;
+            text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
+        }        /* Loading Indicator */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+        }
+        
+        .loading-indicator svg {
+            width: 36px;
+            height: 36px;
+            fill: currentColor; /* Will inherit from parent bubble's text color */
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+        }
+        
+        /* Enhanced typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--color-accent-blue);
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+            margin: 0 2px;
+            animation: typing 1.5s infinite;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        .chat-bubble-message.loading .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }        /* Scroll to Bottom Button */
+        .scroll-to-bottom-button {
+            position: absolute;
+            bottom: 0.75rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: var(--border-radius-full);
+            background-image: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            color: white;
+            transition: all var(--transition-normal);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 10;
+        }
+        
+        .scroll-to-bottom-button.visible {
+            opacity: 1;
+            visibility: visible;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-8px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-4px);
+            }
+        }
+
+        .scroll-to-bottom-button:hover {
+            background-image: linear-gradient(135deg, #8E54E9 0%, #4776E6 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform: translateX(-50%) translateY(-2px);
+        }
+        
+        .scroll-to-bottom-button:active {
+            transform: translateX(-50%) scale(0.95);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .scroll-to-bottom-button svg {
+            width: 18px;
+            height: 18px;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+        }        /* Input Area */        .input-area {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* More white border */
+            background-color: rgba(18, 18, 18, 0.4); /* Semi-transparent background that matches container */
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            background-image: linear-gradient(to top, rgba(18, 18, 18, 0.6) 0%, rgba(18, 18, 18, 0) 100%);
+            backdrop-filter: blur(5px);
+        }        .input-form {
+            position: relative;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.15); /* More white border */
+            background-color: rgba(25, 25, 25, 0.4); /* Lighter opacity */
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all var(--transition-normal);
+        }
+        
+        .input-form:focus-within {
+            border-color: var(--color-border-input-focus);
+            box-shadow: 0 5px 16px rgba(58, 143, 255, 0.15);
+            transform: translateY(-2px);
+        }        .chat-textarea {
+            display: block;
+            width: 100%;
+            min-height: 48px;
+            resize: none;
+            border-radius: var(--border-radius-md);
+            background-color: rgba(25, 25, 25, 0.6); /* Slightly lighter than container bg */
+            border: 0;
+            padding: 0.75rem;
+            box-shadow: none;
+            font-size: 0.875rem;
+            color: var(--color-text-primary); /* Light text for input */
+            box-sizing: border-box;
+        }
+        .chat-textarea::placeholder {
+            color: var(--color-text-secondary); /* Muted placeholder */
+        }
+        .chat-textarea:focus {
+            outline: none;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            padding-top: 0;
+        }
+
+        .input-actions-left {
+            display: flex;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            border-radius: var(--border-radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 0.5rem 0.75rem;
+        }
+        .btn:focus-visible {
+            outline: 2px solid var(--color-border-input-focus);
+            outline-offset: 2px;
+        }
+        .btn:disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .btn-sm {
+            height: 36px;
+            padding: 0 0.75rem;
+        }
+
+        .btn-icon {
+            height: 40px;
+            width: 40px;
+            padding: 0;
+        }
+         .btn-icon.sm { /* Custom small icon button */
+            height: 32px;
+            width: 32px;
+        }        /* Send Message Button - now primary */
+        .btn-primary {
+            background-image: linear-gradient(135deg, var(--color-button-send-bg) 0%, var(--color-button-send-hover-bg) 100%);
+            color: var(--color-button-send-text);
+            box-shadow: 0 2px 6px rgba(0, 99, 230, 0.4);
+            transform-origin: center;
+            transition: all var(--transition-normal);
+        }
+        
+        .btn-primary:hover {
+            background-image: linear-gradient(135deg, #0063e6 0%, #004bb1 100%);
+            box-shadow: 0 4px 12px rgba(0, 99, 230, 0.5);
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        .btn-primary svg { /* Ensure icon color matches text */
+           stroke: var(--color-button-send-text);
+           filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+
+        /* Ghost Buttons (Attach, Mic) */
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--color-button-icon-idle); /* Icon color */
+        }
+        .btn-ghost:hover {
+            background-color: var(--color-button-icon-hover-bg);
+            color: var(--color-button-icon-hover-fg);
+        }
+        .btn-ghost svg { /* Ensure icon color is set by parent 'color' */
+            stroke: currentColor;
+        }
+
+
+        .btn-send {
+            margin-left: auto;
+            gap: 0.375rem;
+        }
+        .btn-send svg {
+            width: 14px;
+            height: 14px;
+        }
+        .input-actions-left .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }        /* File Preview Styles */
+        .file-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            width: 100%;
+        }
+
+        .file-preview-item {
+            background-image: linear-gradient(135deg, rgba(58, 143, 255, 0.15) 0%, rgba(38, 123, 235, 0.25) 100%);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-radius: var(--border-radius-lg);
+            padding: 0.6rem 0.9rem;
+            font-size: 0.875rem;
+            color: var(--color-text-primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(58, 143, 255, 0.2);
+            transition: all var(--transition-normal);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .file-preview-item:hover {
+            border-color: rgba(58, 143, 255, 0.5);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .file-preview-item .icon {
+            width: 1rem; /* Equivalent to size-4 (16px) */
+            height: 1rem;
+            stroke: currentColor;
+        }
+
+        .file-preview-name {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }        .file-remove-button {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: var(--border-radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-normal);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .file-remove-button:hover {
+            background-color: rgba(237, 100, 166, 0.2);
+            border-color: rgba(237, 100, 166, 0.3);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .file-remove-button svg {
+            width: 1rem;
+            height: 1rem;
+            transition: transform var(--transition-normal);
+        }
+        
+        .file-remove-button:hover svg {
+            transform: scale(1.2);
+        }
+        /* End File Preview Styles */
+
+        /* Utility for hiding elements accessibly */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }    /* Document section styles - Enhanced with modern design */
+        :root {
+            /* Additional color variables for document section */
+            --color-accent-blue: #4776E6;
+            --color-accent-purple: #8E54E9;
+            --color-accent-teal: #38b2ac;
+            --color-accent-pink: #e95494;
+            --color-accent-orange: #FF8B13;
+            --color-document-gradient: linear-gradient(135deg, rgba(71, 118, 230, 0.1) 0%, rgba(142, 84, 233, 0.1) 100%);
+            --color-document-card-bg: rgba(45, 45, 45, 0.7);
+            --color-document-header-bg: rgba(35, 35, 35, 0.8);
+        }
+
+        .documents-container {
+            width: 330px;
+            height: var(--shared-container-height); /* USE VARIABLE */
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            background-color: var(--color-container-bg);
+            background-image: var(--color-document-gradient);
+            background-blend-mode: overlay;
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Handle overflow */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track); /* For Firefox */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .documents-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .documents-container::-webkit-scrollbar-track {
+            background: var(--color-scrollbar-track);
+            border-radius: 4px;
+        }
+        .documents-container::-webkit-scrollbar-thumb {
+            background: var(--color-scrollbar-thumb);
+            border-radius: 4px;
+        }
+        .documents-container::-webkit-scrollbar-thumb:hover {
+            background: var(--color-scrollbar-thumb-hover);
+        }
+
+        /* Fancy background pattern - subtle grid */
+        .documents-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .documents-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(80, 80, 80, 0.5);
+            font-weight: 600;
+            color: var(--color-text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--color-document-header-bg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .documents-header span {
+            position: relative;
+            padding-left: 0.5rem;
+        }
+        
+        .documents-header span::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 1rem;
+            background: var(--color-accent-blue);
+            border-radius: 4px;
+        }
+
+        .documents-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .documents-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .documents-list::-webkit-scrollbar-track {
+            background: var(--color-scrollbar-track);
+            border-radius: 3px;
+        }
+        .documents-list::-webkit-scrollbar-thumb {
+            background: var(--color-scrollbar-thumb);
+            border-radius: 3px;
+        }
+        .documents-list::-webkit-scrollbar-thumb:hover {
+            background: var(--color-scrollbar-thumb-hover);
+        }
+        .documents-list {
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+        }
+
+        /* Modern card styling for document items */
+        .document-item {
+            padding: 0.9rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 0.75rem;
+            background-color: var(--color-document-card-bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .document-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .document-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: rgba(50, 50, 50, 0.8);
+            border-color: rgba(80, 80, 80, 0.5);
+        }
+        
+        .document-item:hover::before {
+            background-color: var(--color-accent-blue);
+        }
+
+        .document-item.active {
+            background-color: rgba(71, 118, 230, 0.15);
+            border-color: rgba(71, 118, 230, 0.3);
+        }
+        
+        .document-item.active::before {
+            background-color: var(--color-accent-blue);
+        }
+
+        /* Document icon styling with colored backgrounds */
+        .document-icon {
+            color: var(--color-text-primary);
+            background: rgba(71, 118, 230, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover .document-icon {
+            transform: scale(1.05);
+        }
+
+        .document-item[data-doctype="pdf"] .document-icon {
+            background: rgba(233, 84, 148, 0.2);  /* Pink */
+        }
+        
+        .document-item[data-doctype="docx"] .document-icon {
+            background: rgba(71, 118, 230, 0.2);  /* Blue */
+        }
+        
+        .document-item[data-doctype="xlsx"] .document-icon {
+            background: rgba(56, 178, 172, 0.2);  /* Teal */
+        }
+        
+        .document-item[data-doctype="pptx"] .document-icon {
+            background: rgba(255, 139, 19, 0.2);  /* Orange */
+        }
+        
+        .document-item[data-doctype="txt"] .document-icon {
+            background: rgba(142, 84, 233, 0.2);  /* Purple */
+        }
+
+        .document-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .document-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.35rem;
+            transition: color 0.2s ease;
+        }
+
+        .document-item:hover .document-name {
+            color: var(--color-accent-blue);
+        }
+
+        .document-meta {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .document-meta-dot {
+            display: inline-block;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background-color: var(--color-text-secondary);
+        }
+
+        .empty-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--color-text-secondary);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .empty-documents svg {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 1.25rem;
+            stroke: var(--color-text-secondary);
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .empty-documents h3 {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .empty-documents p {
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+
+        .upload-btn {
+            background-color: rgba(71, 118, 230, 0.1);
+            color: var(--color-accent-blue);
+            border: 1px solid var(--color-accent-blue);
+            padding: 0.6rem 1rem;
+            border-radius: var(--border-radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .upload-btn:hover {
+            background-color: rgba(71, 118, 230, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+          .upload-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Ripple effect for document items */
+        .document-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Pixel Sparks Animation */
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes slowFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-20px) translateX(10px); /* Increased float distance */
+            }
+        }
+
+        .spark {
+            position: fixed; /* Use fixed to cover the whole page */
+            width: 1px;
+            height: 1px;
+            background-color: white;
+            border-radius: 50%;
+            animation: sparkle var(--spark-duration, 5s) infinite cubic-bezier(0.45, 0.05, 0.55, 0.95),
+                       slowFloat 15s infinite ease-in-out;
+            animation-delay: var(--spark-delay, 0s);
+            opacity: var(--spark-opacity, 0.5);
+            pointer-events: none; /* So they don't interfere with interactions */
+            z-index: 0; /* Behind other content but visible */
+        }
+
+        .spark-medium {
+            width: 2px;
+            height: 2px;
+        }
+
+        .spark-large {
+            width: 3px;
+            height: 3px;
+            box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .spark-blue {
+            background-color: rgba(99, 102, 241, 0.8); /* indigo-500 */
+            box-shadow: 0 0 4px 1px rgba(99, 102, 241, 0.4);
+        }
+
+        .spark-purple {
+            background-color: rgba(139, 92, 246, 0.8); /* violet-500 */
+            box-shadow: 0 0 4px 1px rgba(139, 92, 246, 0.4);
+        }
+
+        .spark-rose {
+            background-color: rgba(244, 63, 94, 0.8); /* rose-500 */
+            box-shadow: 0 0 4px 1px rgba(244, 63, 94, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pixel Sparks Layer -->
+    <div id="pixel-sparks-container" class="fixed inset-0 overflow-hidden pointer-events-none" style="z-index: 0;">
+    </div>
+
+    <div class="main-container">        <div class="chat-container">
+            <canvas id="chat-grid-canvas"></canvas>
+            <div class="message-list-area">
+                <div class="message-list" id="messageList">
+                    <div class="message-items-container" id="messageItemsContainer">
+                        <!-- Messages will be rendered here by JavaScript -->
+                    </div>
+                </div>
+            <button class="scroll-to-bottom-button" id="scrollToBottomButton" aria-label="Scroll to bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+            </button>
+        </div>        <div class="input-area">
+            <form class="input-form" id="chatForm">
+                <textarea id="chatInput"
+                          placeholder="Ask me anything..."
+                          class="text-primary min-h-[44px] w-full resize-none border-none bg-transparent shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+                          rows="1"></textarea>
+
+                <div class="flex items-center justify-between gap-2 pt-2">
+                    <div data-tooltip="Select AI model" title="Select AI model" style="visibility: hidden;">
+                        <div class="relative">
+                            <select id="modelSelect" class="hover:bg-secondary-foreground/10 text-primary bg-transparent cursor-pointer flex h-8 px-2 items-center justify-center rounded-2xl border border-zinc-700 text-sm appearance-none">
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo" selected>GPT-3.5</option>
+                                <option value="claude-3">Claude 3</option>
+                                <option value="gemini-pro">Gemini Pro</option>
+                                <option value="llama-3">Llama 3</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="submitButtonTooltipWrapper" data-tooltip="Send message" title="Send message">
+                        <button type="submit" id="sendButton"
+                                class="bg-primary text-primary-foreground hover:bg-primary/90 h-8 w-8 rounded-full flex items-center justify-center">
+                            <svg id="arrowUpIcon" class="icon-md" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <svg id="squareIcon" class="icon-md fill-current hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        </button>
+                    </div>
+                </div>
+            </form>        </div>
+    </div>
+      <div class="documents-container">
+        <div class="documents-header">
+            <span>Uploaded Documents</span>
+        </div>
+        <div class="documents-list" id="documentsList">
+            <div class="document-item" data-doctype="pdf" data-id="doc1" tabindex="0">
+                <div class="document-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">Project_Report_2025.pdf</div>
+                    <div class="document-meta">
+                        <span>PDF</span>
+                        <span class="document-meta-dot"></span>
+                        <span>2.4 MB</span>
+                    </div>
+                </div>
+            </div>
+            <div class="document-item" data-doctype="docx" data-id="doc2" tabindex="0">
+                <div class="document-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">Research_Analysis.docx</div>
+                    <div class="document-meta">
+                        <span>DOCX</span>
+                        <span class="document-meta-dot"></span>
+                        <span>1.8 MB</span>
+                    </div>
+                </div>
+            </div>
+            <div class="document-item" data-doctype="xlsx" data-id="doc3" tabindex="0">
+                <div class="document-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">Financial_Data_Q1.xlsx</div>
+                    <div class="document-meta">
+                        <span>XLSX</span>
+                        <span class="document-meta-dot"></span>
+                        <span>3.2 MB</span>
+                    </div>
+                </div>
+            </div>
+            <div class="document-item" data-doctype="pptx" data-id="doc4" tabindex="0">
+                <div class="document-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h20v18H2z"></path>
+                        <path d="M12 3v18"></path>
+                    </svg>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">Presentation_May.pptx</div>
+                    <div class="document-meta">
+                        <span>PPTX</span>
+                        <span class="document-meta-dot"></span>
+                        <span>5.7 MB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state - hidden by default -->
+            <div class="empty-documents" style="display: none;" id="emptyDocumentsState">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h3>No documents yet</h3>
+                <p>Upload documents to chat with them</p>
+                <button class="upload-btn" id="emptyStateUploadBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Upload Document
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>    <script>
+        document.addEventListener('DOMContentLoaded', () => {            // DOM Elements
+            const messageItemsContainer = document.getElementById('messageItemsContainer');
+            const chatForm = document.getElementById('chatForm');
+            const chatInput = document.getElementById('chatInput');
+            const messageList = document.getElementById('messageList');
+            const scrollToBottomButton = document.getElementById('scrollToBottomButton');
+            const modelSelect = document.getElementById('modelSelect');
+            const sendButton = document.getElementById('sendButton');
+            const arrowUpIcon = document.getElementById('arrowUpIcon');
+            const squareIcon = document.getElementById('squareIcon');
+            const submitButtonTooltipWrapper = document.getElementById('submitButtonTooltipWrapper');
+            
+            // Document section elements
+            const documentsList = document.getElementById('documentsList');
+            const documentItems = document.querySelectorAll('.document-item');
+            const documentUploadBtn = document.getElementById('documentUploadBtn');
+            const documentFileInput = document.getElementById('documentFileInput');
+            const emptyDocumentsState = document.getElementById('emptyDocumentsState');
+            const emptyStateUploadBtn = document.getElementById('emptyStateUploadBtn');
+
+            // Initial messages data
+            let messages = [
+                { id: 1, content: "Hello! How can I help you today?", sender: "ai" },
+                { id: 2, content: "I have a question about the component library.", sender: "user" },
+                { id: 3, content: "Sure! I'd be happy to help. What would you like to know?", sender: "ai" },
+            ];            let isLoading = false;
+            let autoScrollEnabled = true;
+            let selectedModel = "gpt-3.5-turbo"; // Default selected model
+            const MAX_TEXTAREA_HEIGHT = 240; // Maximum height for the textarea
+
+            const updateSubmitButtonUI = () => {
+                if (isLoading) {
+                    arrowUpIcon.classList.add('hidden');
+                    squareIcon.classList.remove('hidden');
+                    sendButton.disabled = true;
+                    if (submitButtonTooltipWrapper) {
+                        submitButtonTooltipWrapper.setAttribute('data-tooltip', 'Stop generation');
+                        submitButtonTooltipWrapper.setAttribute('title', 'Stop generation');
+                    }
+                } else {
+                    arrowUpIcon.classList.remove('hidden');
+                    squareIcon.classList.add('hidden');
+                    sendButton.disabled = false;
+                    if (submitButtonTooltipWrapper) {
+                        submitButtonTooltipWrapper.setAttribute('data-tooltip', 'Send message');
+                        submitButtonTooltipWrapper.setAttribute('title', 'Send message');
+                    }
+                }
+            };            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                const newHeight = Math.min(chatInput.scrollHeight, MAX_TEXTAREA_HEIGHT);
+                chatInput.style.height = `${newHeight}px`;
+            });            
+            
+            // Model Selection Handling
+            modelSelect.addEventListener('change', (event) => {
+                selectedModel = event.target.value;
+                console.log(`Model changed to: ${selectedModel}`);
+            });
+            
+            // Set initial selected model
+            selectedModel = modelSelect.value;
+
+            const isScrolledToBottom = () => {
+                return messageList.scrollHeight - messageList.clientHeight <= messageList.scrollTop + 20;
+            };
+
+            const updateScrollToBottomButtonVisibility = () => {
+                if (!isScrolledToBottom() && messageList.scrollHeight > messageList.clientHeight) {
+                    scrollToBottomButton.classList.add('visible');
+                } else {
+                    scrollToBottomButton.classList.remove('visible');
+                }
+            };
+            
+            const scrollToBottom = (smooth = true) => {
+                messageList.scrollTo({
+                    top: messageList.scrollHeight,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+                autoScrollEnabled = true;
+                updateScrollToBottomButtonVisibility();
+            };
+
+            messageList.addEventListener('scroll', () => {
+                if (!isScrolledToBottom() && messageList.scrollTop > 0) {
+                    autoScrollEnabled = false;
+                } else if (isScrolledToBottom()) {
+                    autoScrollEnabled = true;
+                }
+                updateScrollToBottomButtonVisibility();
+            });
+            
+            const disableAutoScrollOnInteraction = () => {
+                if (!isScrolledToBottom()) {
+                    autoScrollEnabled = false;
+                    updateScrollToBottomButtonVisibility();
+                }
+            };
+            messageList.addEventListener('wheel', disableAutoScrollOnInteraction);
+            messageList.addEventListener('touchmove', disableAutoScrollOnInteraction);
+
+
+            scrollToBottomButton.addEventListener('click', () => scrollToBottom(true));
+            
+            const createMessageBubbleElement = (message) => {
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.classList.add('chat-bubble', message.sender === 'user' ? 'sent' : 'received');
+                bubbleDiv.dataset.messageId = message.id;
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('chat-bubble-avatar');
+                const fallbackTextContent = message.sender === 'user' ? 'US' : 'AI';
+
+                const fallbackSpan = document.createElement('span');
+                fallbackSpan.classList.add('fallback-text');
+                fallbackSpan.textContent = fallbackTextContent;
+                fallbackSpan.style.display = 'none'; // Initially hidden
+                avatarDiv.appendChild(fallbackSpan); // Add it, but hidden
+
+                if (message.sender === 'user') {
+                    const userAvatarSrc = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop";
+                    if (userAvatarSrc) {
+                        const img = document.createElement('img');
+                        img.src = userAvatarSrc;
+                        img.alt = 'User avatar';
+                        img.onerror = () => {
+                            img.style.display = 'none';
+                            fallbackSpan.style.display = 'flex';
+                        };
+                        // Prepend img so it's visually on top of the (hidden) fallback span
+                        avatarDiv.insertBefore(img, fallbackSpan);
+                    } else {
+                        fallbackSpan.style.display = 'flex'; // No src, show fallback
+                    }
+                } else { // AI sender - use SVG
+                    const aiSvgIconString = `
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512">
+                    <path d="M0 0 C9.69242413 6.95288386 16.11995831 16.46391612 18.3125 28.3125 C19.20255131 42.86141557 16.76980464 53.93664943 7.56640625 65.5078125 C1.29219651 72.36900652 -6.61295146 76.49759029 -15.6875 78.3125 C-15.6875 95.1425 -15.6875 111.9725 -15.6875 129.3125 C-11.16675781 129.29155273 -6.64601563 129.27060547 -1.98828125 129.24902344 C12.98728159 129.18259503 27.96285042 129.13829701 42.93852234 129.10525131 C52.0137792 129.08469022 61.08889575 129.05669417 70.1640625 129.01074219 C78.08073434 128.97067559 85.99730447 128.94502039 93.9140749 128.93614602 C98.09985774 128.93096456 102.28534984 128.91892363 106.47103882 128.88957977 C110.42405159 128.86209595 114.37665844 128.85412022 118.32975769 128.86006927 C119.76791096 128.85898356 121.20608017 128.85122813 122.64414978 128.8356781 C141.27513734 128.64438222 157.31037554 133.04632072 171.09887695 146.0065918 C182.50888799 157.19497629 189.18496563 172.04000378 189.53955078 188.11962891 C189.53924116 189.7594742 189.52837038 191.39934604 189.5078125 193.0390625 C189.50356766 194.34960098 189.50356766 194.34960098 189.49923706 195.68661499 C189.48817303 198.43705814 189.46309581 201.18715774 189.4375 203.9375 C189.42745234 205.81900567 189.41832964 207.70051651 189.41015625 209.58203125 C189.38827912 214.15898357 189.35384719 218.73568385 189.3125 223.3125 C190.74468872 223.29292236 190.74468872 223.29292236 192.20581055 223.27294922 C193.46176025 223.26279785 194.71770996 223.25264648 196.01171875 223.2421875 C197.87703247 223.22260986 197.87703247 223.22260986 199.7800293 223.20263672 C208.92942354 223.4871918 216.38261053 227.84273355 223.0703125 233.90625 C231.40892456 242.78959551 231.91870649 253.21747817 231.84375 264.8125 C231.84645171 266.2988307 231.85033974 267.78515966 231.85534668 269.27148438 C231.86120996 272.37126664 231.85278259 275.47058466 231.83398438 278.5703125 C231.81119598 282.51758796 231.82433633 286.46377508 231.84827423 290.41101074 C231.86281899 293.47566738 231.8580869 296.54007154 231.84776306 299.60473633 C231.84511964 301.05900201 231.8482803 302.5132916 231.85768127 303.9675293 C231.92229808 316.76816484 229.79235563 325.67021825 220.828125 335.109375 C213.78465388 341.27788076 206.30850289 343.47926685 197.125 343.375 C196.37541016 343.37048828 195.62582031 343.36597656 194.85351562 343.36132812 C193.00647617 343.34956354 191.15947787 343.33162865 189.3125 343.3125 C189.3439209 345.04983398 189.3439209 345.04983398 189.37597656 346.82226562 C189.44942568 351.1982747 189.49467335 355.57423173 189.53222656 359.95068359 C189.55210682 361.83000914 189.57922087 363.70927483 189.61425781 365.58837891 C189.98675596 386.10864428 187.31595348 403.5897168 172.578125 419.03515625 C171.83046875 419.78667969 171.0828125 420.53820312 170.3125 421.3125 C169.70921875 421.95058594 169.1059375 422.58867187 168.484375 423.24609375 C164.42061523 427.21267666 159.95800211 429.70827385 154.875 432.125 C154.26640137 432.41528076 153.65780273 432.70556152 153.03076172 433.00463867 C145.44486995 436.41698102 137.89366341 437.6159969 129.62207031 437.55732727 C128.38274435 437.56072413 128.38274435 437.56072413 127.1183815 437.56418961 C124.37571546 437.56944711 121.6332795 437.56068588 118.890625 437.55200195 C116.91377694 437.55311589 114.93692921 437.55517534 112.96008301 437.55810547 C108.71551669 437.56281498 104.47100575 437.56172089 100.22644043 437.55632973 C93.51062045 437.54870193 86.79490651 437.55939525 80.07910156 437.5735321 C60.98632375 437.6112221 41.89359463 437.62945488 22.80078125 437.61791992 C12.24642294 437.61170072 1.69223644 437.6232956 -8.86207962 437.65436524 C-15.53416942 437.67300013 -22.20577178 437.66971995 -28.87785339 437.65019763 C-33.03236651 437.64330603 -37.18661641 437.65729205 -41.34107971 437.67714691 C-43.26269738 437.68218499 -45.1843596 437.67873313 -47.10594177 437.66601372 C-60.74764239 437.36410688 -60.74764239 437.36410688 -72.6875 443.3125 C-74.1062087 444.24315187 -75.52939193 445.16704146 -76.95825195 446.08203125 C-78.44993142 447.09266955 -79.93899327 448.10717932 -81.42578125 449.125 C-82.24884766 449.68345108 -83.07191406 450.24190216 -83.91992188 450.817276 C-85.69245915 452.02002931 -87.46396557 453.22430299 -89.23452759 454.42996216 C-93.99375952 457.66971033 -98.76193927 460.89620726 -103.53125 464.12109375 C-104.51958328 464.78942734 -105.50791656 465.45776093 -106.52619934 466.14634705 C-117.62781645 473.64119013 -128.80813969 481.01585282 -140 488.375 C-141.42706772 489.31339722 -141.42706772 489.31339722 -142.88296509 490.27075195 C-146.38709105 492.57440546 -149.89133395 494.8778749 -153.39746094 497.17848206 C-154.51229858 497.91009804 -154.51229858 497.91009804 -155.6496582 498.65649414 C-156.34173874 499.10993698 -157.03381927 499.56337982 -157.74687195 500.03056335 C-159.54131919 501.21593614 -161.31901311 502.42326369 -163.09619141 503.63427734 C-167.07771692 506.21285341 -169.01997804 505.97928885 -173.6875 505.3125 C-176.8547802 502.8140388 -178.48422626 501.32434978 -179.28877258 497.31950378 C-179.27766953 496.21141861 -179.26656647 495.10333344 -179.25512695 493.96166992 C-179.2547493 492.7007402 -179.25437164 491.43981049 -179.25398254 490.14067078 C-179.22845324 488.77475994 -179.20237333 487.40885931 -179.17578125 486.04296875 C-179.16644859 484.63765218 -179.15933461 483.23231928 -179.15434265 481.82698059 C-179.13530772 478.13911541 -179.08623971 474.45224449 -179.03082275 470.76477051 C-178.97955304 466.99761402 -178.9568123 463.23029589 -178.93164062 459.46289062 C-178.87811537 452.0789752 -178.79284782 444.69587724 -178.6875 437.3125 C-179.30183899 437.31725845 -179.91617798 437.32201691 -180.5491333 437.32691956 C-181.35695251 437.33062057 -182.16477173 437.33432159 -182.99707031 437.33813477 C-183.7970343 437.34289322 -184.59699829 437.34765167 -185.42120361 437.35255432 C-200.02114966 437.09451617 -212.80354025 428.32271471 -222.6875 418.3125 C-223.24953125 417.77238281 -223.8115625 417.23226563 -224.390625 416.67578125 C-238.55216241 401.88070138 -239.13931666 382.16545145 -238.875 363 C-238.85991845 361.08399495 -238.84623622 359.16797836 -238.83398438 357.25195312 C-238.80127091 352.60517831 -238.74968253 347.95897005 -238.6875 343.3125 C-239.7801416 343.32917725 -240.8727832 343.34585449 -241.99853516 343.36303711 C-243.44954072 343.37652665 -244.90055013 343.38960724 -246.3515625 343.40234375 C-247.42869507 343.42041077 -247.42869507 343.42041077 -248.52758789 343.43884277 C-258.70466417 343.50575894 -265.16965762 339.72749604 -272.484375 332.7578125 C-278.51872414 326.06011292 -280.78959696 319.66963039 -280.86450195 310.77490234 C-280.87107315 310.12713837 -280.87764435 309.47937439 -280.88441467 308.8119812 C-280.90407727 306.67413193 -280.91579725 304.53635284 -280.92578125 302.3984375 C-280.92985678 301.66437305 -280.9339323 300.93030861 -280.93813133 300.17399979 C-280.95896665 296.28511083 -280.97327675 292.39625685 -280.98266602 288.50732422 C-280.99369805 284.51291696 -281.02806739 280.51907173 -281.06783772 276.52486229 C-281.09413086 273.4345301 -281.10236923 270.34432898 -281.10594749 267.25389481 C-281.11078431 265.78284555 -281.12231432 264.31180099 -281.14098549 262.84086227 C-281.28605064 250.65039031 -279.62190064 241.42439506 -271.0390625 232.359375 C-263.22603024 225.55866253 -255.55821798 223.15482974 -245.375 223.25 C-244.12074219 223.25902344 -242.86648437 223.26804688 -241.57421875 223.27734375 C-240.14529297 223.29474609 -240.14529297 223.29474609 -238.6875 223.3125 C-238.70321045 222.17409668 -238.7189209 221.03569336 -238.73510742 219.86279297 C-238.79008475 215.57250256 -238.8240924 211.28224214 -238.85229492 206.99169922 C-238.86722913 205.14724463 -238.88758395 203.30282457 -238.91381836 201.45849609 C-239.1987301 180.88898562 -236.68806188 162.84723687 -221.94506836 147.37426758 C-208.70730082 134.14099733 -193.19268212 129.10278348 -174.79718018 129.06365967 C-173.39782618 129.07073472 -171.99847317 129.07800429 -170.59912109 129.08544922 C-169.10012825 129.0860144 -167.60113486 129.08569468 -166.10214233 129.08456421 C-162.06149167 129.08399387 -158.02096142 129.09569608 -153.98033857 129.10971212 C-149.74695933 129.12227309 -145.51357688 129.12339419 -141.28018188 129.12576294 C-133.27647988 129.13196201 -125.27283297 129.14835141 -117.26915514 129.16846192 C-108.15181305 129.19087005 -99.03446824 129.20182667 -89.91710544 129.21185279 C-71.17386611 129.23271914 -52.43070224 129.26937557 -33.6875 129.3125 C-33.6875 112.4825 -33.6875 95.6525 -33.6875 78.3125 C-36.9875 77.3225 -40.2875 76.3325 -43.6875 75.3125 C-46.97873068 73.65497717 -49.79189136 71.58568809 -52.6875 69.3125 C-53.30496094 68.83296875 -53.92242187 68.3534375 -54.55859375 67.859375 C-61.82763389 61.44837301 -67.26221897 50.50347625 -67.92578125 40.84375 C-68.30840151 26.98841543 -65.32576318 15.5475025 -55.6875 5.15625 C-40.32345499 -9.54933594 -17.82502146 -10.84607238 0 0 Z M-43.5625 19.0625 C-48.36226145 25.0983949 -50.37910454 30.99022683 -50.09375 38.73046875 C-48.90234047 46.3027928 -44.78354451 52.20910873 -38.84765625 56.90234375 C-32.59175535 60.98621396 -26.70462848 61.91373614 -19.328125 60.9453125 C-12.04105407 59.1990026 -6.87543848 54.35304678 -2.6875 48.3125 C0.95796947 41.8721706 1.3801024 35.81120194 -0.30859375 28.6953125 C-3.02429084 20.75340723 -7.87486716 16.58541573 -14.9375 12.375 C-25.6956105 9.32686869 -35.7676854 10.79576552 -43.5625 19.0625 Z M-211.8984375 163.890625 C-218.58798582 172.94634543 -221.00588344 182.63944449 -220.94819641 193.75495911 C-220.95202196 194.5545584 -220.95584751 195.3541577 -220.95978898 196.17798728 C-220.97002567 198.83072245 -220.96614473 201.48323738 -220.9621582 204.13598633 C-220.96650989 206.04885557 -220.97169455 207.96172308 -220.97764587 209.87458801 C-220.99099891 215.05240136 -220.99161859 220.23014155 -220.98908257 225.40796876 C-220.98801022 229.73922232 -220.99290306 234.07046123 -220.997688 238.40171164 C-221.0087707 248.62532223 -221.00922774 258.84889608 -221.00317383 269.07250977 C-220.99713624 279.59880892 -221.00944248 290.12497432 -221.0307439 300.65125066 C-221.04839206 309.70717969 -221.05435613 318.76306628 -221.05110615 327.81901187 C-221.04929807 333.21952019 -221.05188185 338.61993313 -221.06582069 344.0204258 C-221.07844656 349.10207583 -221.07641006 354.18351828 -221.06340981 359.26516533 C-221.06105471 361.12263689 -221.06374014 362.98012328 -221.07203293 364.83757782 C-221.13981382 381.20899075 -219.56771497 394.80387152 -208.1875 407.5 C-199.32893227 415.78704723 -189.76944985 418.72330915 -178.05078125 419.8671875 C-172.24095985 420.63643215 -168.33792177 422.57744122 -164.25 426.875 C-162.04516398 430.3145442 -161.55719212 432.97033412 -161.48217773 436.9675293 C-161.4522599 438.37865242 -161.4522599 438.37865242 -161.42173767 439.81828308 C-161.39666893 441.33715874 -161.39666893 441.33715874 -161.37109375 442.88671875 C-161.35031265 443.92568802 -161.32953156 444.96465729 -161.30812073 446.03511047 C-161.24269344 449.35667253 -161.18377179 452.67831416 -161.125 456 C-161.08180831 458.2506593 -161.03819381 460.50131052 -160.99414062 462.75195312 C-160.88701902 468.2720511 -160.78523984 473.79222837 -160.6875 479.3125 C-154.38402811 475.94578867 -148.42422768 472.2505775 -142.52734375 468.21875 C-141.67146667 467.63837982 -140.8155896 467.05800964 -139.93377686 466.46005249 C-138.10647761 465.22077495 -136.28021788 463.97996348 -134.45492554 462.73773193 C-129.65854418 459.47469677 -124.85273611 456.2256131 -120.046875 452.9765625 C-119.08549118 452.32640167 -118.12410736 451.67624084 -117.1335907 451.00637817 C-108.93088909 445.46470835 -100.69656078 439.97263678 -92.42459106 434.53491211 C-91.06950202 433.64406934 -89.71521864 432.7519997 -88.36178589 431.85864258 C-86.49743611 430.62871736 -84.63015406 429.40339463 -82.76171875 428.1796875 C-81.20843872 427.16044189 -81.20843872 427.16044189 -79.6237793 426.12060547 C-72.29908992 421.61019976 -67.09627671 420.16184261 -58.57383728 420.18119812 C-57.33691087 420.17802455 -57.33691087 420.17802455 -56.07499605 420.17478687 C-53.30771519 420.16878843 -50.54047994 420.16978692 -47.77319336 420.1706543 C-45.79047569 420.16762261 -43.80775872 420.16410113 -41.82504272 420.16012573 C-37.55203613 420.1522357 -33.2790379 420.14709136 -29.00602531 420.14383507 C-22.24386417 420.1379231 -15.48175561 420.12137992 -8.71961975 420.10249329 C-6.40383438 420.09615576 -4.08804897 420.08983013 -1.77226353 420.08351612 C-0.03250506 420.0787674 -0.03250506 420.0787674 1.74240005 420.07392275 C17.48540249 420.0318656 33.22838068 419.99888331 48.97143555 419.98657227 C59.58986138 419.97818335 70.2081572 419.95566038 80.826518 419.9172166 C86.44338381 419.89748143 92.06005539 419.88504293 97.67695808 419.89005089 C102.9654513 419.89470847 108.25357686 419.88083104 113.541996 419.85303879 C115.47727311 419.84614531 117.41258838 419.84598049 119.34786415 419.85323906 C135.56659671 419.90790039 147.5874089 417.35068368 160 406.1875 C168.62436066 397.12189298 171.63632532 385.0341323 171.57319641 372.87004089 C171.57702196 372.0704416 171.58084751 371.2708423 171.58478898 370.44701272 C171.59502567 367.79427755 171.59114473 365.14176262 171.5871582 362.48901367 C171.59150989 360.57614443 171.59669455 358.66327692 171.60264587 356.75041199 C171.61599891 351.57259864 171.61661859 346.39485845 171.61408257 341.21703124 C171.61301022 336.88577768 171.61790306 332.55453877 171.622688 328.22328836 C171.6337707 317.99967777 171.63422774 307.77610392 171.62817383 297.55249023 C171.62213624 287.02619108 171.63444248 276.50002568 171.6557439 265.97374934 C171.67339206 256.91782031 171.67935613 247.86193372 171.67610615 238.80598813 C171.67429807 233.40547981 171.67688185 228.00506687 171.69082069 222.6045742 C171.70344656 217.52292417 171.70141006 212.44148172 171.68840981 207.35983467 C171.68605471 205.50236311 171.68874014 203.64487672 171.69703293 201.78742218 C171.76413862 185.57909434 170.34783781 172.36392251 159.0546875 159.80078125 C150.66554838 151.64092729 140.49051573 147.2001875 128.76725006 147.17827892 C127.65759211 147.17382108 126.54793416 147.16936324 125.40465021 147.16477031 C123.58381552 147.16504685 123.58381552 147.16504685 121.72619629 147.16532898 C120.43252687 147.16165229 119.13885745 147.1579756 117.80598593 147.1541875 C114.21667862 147.14418795 110.62738803 147.140454 107.03806877 147.13779819 C103.16601733 147.13388902 99.29397905 147.12431107 95.42193604 147.11558533 C86.07126482 147.09583752 76.72059256 147.08575653 67.36990571 147.07685754 C62.96341523 147.0724716 58.55692594 147.06710556 54.1504364 147.06186867 C39.49670918 147.04485756 24.84298271 147.03036444 10.18924713 147.02311993 C6.38788349 147.02121012 2.58651986 147.01928977 -1.21484375 147.01733398 C-2.1596217 147.01685024 -3.10439966 147.0163665 -4.07780725 147.0158681 C-19.37501263 147.00757172 -34.67213972 146.9822409 -49.96931094 146.94975331 C-65.68461603 146.91665059 -81.39988137 146.89866824 -97.1152215 146.89547569 C-105.93470777 146.89331349 -114.75407988 146.88460752 -123.5735321 146.85901451 C-131.08623996 146.83726354 -138.59880592 146.82927863 -146.11154169 146.83898129 C-149.94105181 146.8435134 -153.77026944 146.84170389 -157.59973907 146.82221985 C-161.76180544 146.80122758 -165.9232286 146.81161385 -170.08532715 146.82475281 C-171.28137117 146.81378356 -172.47741519 146.80281432 -173.70970297 146.79151267 C-189.26231195 146.90956036 -201.84062355 151.94947537 -211.8984375 163.890625 Z M-257.6875 245.3125 C-261.71506375 249.76401783 -262.81033663 252.19944396 -262.86450195 258.13574219 C-262.87733719 259.3575116 -262.89017242 260.57928101 -262.90339661 261.83807373 C-262.91156524 263.17850336 -262.91900874 264.51893759 -262.92578125 265.859375 C-262.92985678 266.53407082 -262.9339323 267.20876663 -262.93813133 267.90390778 C-262.9589944 271.47695103 -262.97329346 275.04995588 -262.98266602 278.62304688 C-262.99371432 282.30628739 -263.02809415 285.98892106 -263.06783772 289.67194748 C-263.09404157 292.50991911 -263.10236126 295.3477472 -263.10594749 298.18582916 C-263.11316184 300.20102044 -263.13958771 302.21611347 -263.16633606 304.23114014 C-263.23987317 313.10781492 -263.23987317 313.10781492 -258.6875 320.3125 C-251.38641321 326.74440979 -250.63307838 325.3125 -238.6875 325.3125 C-238.6875 297.5925 -238.6875 269.8725 -238.6875 241.3125 C-249.66800399 240.70606433 -249.66800399 240.70606433 -257.6875 245.3125 Z M189.3125 241.3125 C189.3125 269.0325 189.3125 296.7525 189.3125 325.3125 C200.65916932 326.2447746 200.65916932 326.2447746 208.3125 321.3125 C212.2897413 316.79779366 213.43503975 314.45809198 213.48950195 308.48925781 C213.50233719 307.2674884 213.51517242 306.04571899 213.52839661 304.78692627 C213.53656524 303.44649664 213.54400874 302.10606241 213.55078125 300.765625 C213.55485678 300.09092918 213.5589323 299.41623337 213.56313133 298.72109222 C213.5839944 295.14804897 213.59829346 291.57504412 213.60766602 288.00195312 C213.61871432 284.31871261 213.65309415 280.63607894 213.69283772 276.95305252 C213.71904157 274.11508089 213.72736126 271.2772528 213.73094749 268.43917084 C213.73816184 266.42397956 213.76458771 264.40888653 213.79133606 262.39385986 C213.8629274 253.518419 213.8629274 253.518419 209.3125 246.3125 C202.46302374 240.13126533 199.72084686 241.3125 189.3125 241.3125 Z " fill="#ffffff" transform="translate(280.6875,6.6875)"/>
+                    <path d="M0 0 C8.01586887 8.96766035 12.11674298 19.99215042 12 32 C11.27765722 43.55748448 6.73187961 55.11902282 -2 63 C-12.72410644 71.53382651 -24.00554579 74.74889761 -37.6953125 73.81640625 C-47.92175458 72.2216074 -58.15056194 66.76882572 -65 59 C-72.20229507 48.975849 -75.94477181 38.36792185 -75 26 C-72.99278251 13.86186591 -67.80272188 2.63529914 -57.609375 -4.7265625 C-38.52336687 -16.61140805 -16.99091466 -15.29975052 0 0 Z M-50 13 C-54.92754793 18.97903305 -57.54733009 25.20054619 -57 33 C-55.4582685 40.69622417 -52.16192735 46.68822182 -45.6875 51.25 C-39.4204617 55.13882996 -33.95508588 56.63858076 -26.62109375 55.65625 C-18.53606244 53.63197986 -13.32269957 49.04488116 -9.05859375 42.05078125 C-5.93409653 35.99778848 -5.76749484 28.01681733 -7.75390625 21.54296875 C-8.71298403 19.57591902 -9.7672641 17.8060012 -11 16 C-11.53625 15.113125 -12.0725 14.22625 -12.625 13.3125 C-23.68075714 2.54768384 -38.74570724 2.95004115 -50 13 Z " fill="#ffffff" transform="translate(390,234)"/>
+                    <path d="M0 0 C8.3912395 7.99006471 13.0685797 18.49743062 14.1640625 30 C14.46993576 42.99961334 9.69170845 54.50474833 0.9765625 64.015625 C-2.63740311 67.33543062 -6.6828801 69.65100567 -11.0390625 71.8671875 C-11.67457031 72.1971875 -12.31007812 72.5271875 -12.96484375 72.8671875 C-22.00643597 76.89427782 -33.735812 77.04567714 -43.0390625 73.8671875 C-56.11249659 68.43254244 -64.12357014 61.54134061 -70.109375 48.54296875 C-74.0620671 37.85534983 -73.9768592 26.270799 -69.77734375 15.6875 C-64.31808586 4.19583378 -57.41386267 -3.0619801 -45.57421875 -8.203125 C-29.51263365 -13.85899941 -13.05373855 -10.98022051 0 0 Z M-49.0390625 15.8671875 C-53.62164076 22.02189114 -54.85563062 28.08715244 -54.515625 35.68359375 C-53.4822305 42.58700786 -50.71536458 47.876825 -45.2890625 52.3046875 C-38.76214389 56.60707579 -32.42952704 58.6860756 -24.59765625 57.57421875 C-17.91033874 55.72627299 -11.7420522 51.79197102 -8.0390625 45.8671875 C-7.4821875 44.9803125 -6.9253125 44.0934375 -6.3515625 43.1796875 C-3.64418937 36.34679341 -3.26061503 29.91472683 -5.97265625 23.03125 C-9.62327998 15.62302456 -14.26901368 10.87453198 -22.0390625 7.8671875 C-31.85735989 5.09394911 -42.07279163 8.57654481 -49.0390625 15.8671875 Z " fill="#ffffff" transform="translate(183.0390625,232.1328125)"/>
+                    <path d="M0 0 C2.17998223 1.55214734 4.04798724 3.29148799 5.99609375 5.125 C15.61305975 14.12333076 29.54865235 16.81360307 42.4140625 16.38671875 C54.81967056 15.04885906 64.88673542 11.82351372 74.0625 3.1875 C76.88647065 0.65146361 77.81089458 0.03525694 81.6875 -0.6875 C85.63155135 0.13107669 87.34854768 0.95862822 90 4 C91.07391829 7.69159412 91.43917338 9.90206656 90 13.5 C79.79943888 26.2507014 66.94723935 31.68763109 51.125 34.75 C49.75243889 34.86681371 48.37636909 34.94362994 47 35 C45.85273438 35.0515625 44.70546875 35.103125 43.5234375 35.15625 C25.3809426 35.69912823 7.93268102 32.36318928 -6 20 C-6.61101562 19.49339844 -7.22203125 18.98679687 -7.8515625 18.46484375 C-10.69618559 15.93703887 -11.96915172 14.10343246 -13.0625 10.4375 C-12.99232214 6.57771774 -12.39017026 4.98771282 -10 2 C-6.15691236 -0.56205842 -4.5659696 -0.67366765 0 0 Z " fill="#ffffff" transform="translate(217,324)"/>
+                    </svg>
+                    `;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = aiSvgIconString;
+                    const svgElement = tempDiv.querySelector('svg'); // Changed from tempDiv.firstChild to reliably get the SVG element
+
+                    if (svgElement) {
+                        // Prepend SVG so it's visually on top of the (hidden) fallback span
+                        avatarDiv.insertBefore(svgElement, fallbackSpan);
+                    } else {
+                        // SVG creation failed, show fallback
+                        fallbackSpan.style.display = 'flex';
+                    }
+                }
+
+                const messageContentDiv = document.createElement('div');
+                messageContentDiv.classList.add('chat-bubble-message');
+                  if (message.isLoading) {
+                    messageContentDiv.classList.add('loading');
+                    messageContentDiv.innerHTML = `
+                        <div class="loading-indicator">
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>`;
+                } else {
+                    messageContentDiv.textContent = message.content;
+                }
+
+                bubbleDiv.appendChild(avatarDiv);
+                bubbleDiv.appendChild(messageContentDiv);
+                return bubbleDiv;
+            };            // Keep track of rendered message IDs to avoid duplicates
+            let renderedMessageIds = new Set();
+            
+            const renderMessages = () => {
+                // Get all currently displayed message IDs
+                document.querySelectorAll('.chat-bubble[data-message-id]').forEach(el => {
+                    const id = el.dataset.messageId;
+                    if (id && id !== 'loading') renderedMessageIds.add(id);
+                });
+                
+                // First, remove any loading indicators if they exist
+                const existingLoadingIndicators = document.querySelectorAll('.chat-bubble[data-message-id="loading"]');
+                existingLoadingIndicators.forEach(el => el.remove());
+                
+                // Only render messages that haven't been rendered yet
+                messages.forEach((message, index) => {
+                    // Skip already rendered messages
+                    if (renderedMessageIds.has(message.id.toString())) return;
+                    
+                    const messageElement = createMessageBubbleElement(message);
+                    messageElement.style.animationDelay = `0.1s`;
+                    messageItemsContainer.appendChild(messageElement);
+                    renderedMessageIds.add(message.id.toString());
+                });
+
+                // Add loading indicator if needed
+                if (isLoading) {
+                    const loadingBubble = { id: 'loading', sender: 'ai', isLoading: true };
+                    const loadingElement = createMessageBubbleElement(loadingBubble);
+                    loadingElement.style.animationDelay = `0.1s`;
+                    messageItemsContainer.appendChild(loadingElement);
+                }
+                
+                setTimeout(() => {
+                    if (autoScrollEnabled) {
+                        scrollToBottom(true);
+                    }
+                    updateScrollToBottomButtonVisibility();
+                }, 0);
+            };
+
+            if (chatForm) chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const queryContent = chatInput.value.trim();
+    if (!queryContent) return;
+
+    console.log("Form submitted. Query:", queryContent);
+
+    // Add user message to the array and render
+    const userMessage = { 
+        id: Date.now(), // Unique ID for the user message
+        content: queryContent, 
+        sender: 'user' 
+    };
+    messages.push(userMessage);
+    renderMessages(); // Render user message immediately
+
+    // Clear input and set loading state
+    chatInput.value = '';
+    chatInput.style.height = 'auto'; // Reset height after clearing
+    isLoading = true;
+    autoScrollEnabled = true; // Ensure auto-scroll for AI response
+    updateSubmitButtonUI();
+    renderMessages(); // This call will now correctly show the loading indicator
+
+    // Determine active documents for context
+    const activeDocElements = document.querySelectorAll('.documents-list .document-item.active');
+    let activeDocumentNames = [];
+    if (activeDocElements && activeDocElements.length > 0) {
+        activeDocElements.forEach(el => {
+            const docNameDiv = el.querySelector('.document-name');
+            if (docNameDiv && docNameDiv.textContent) {
+                activeDocumentNames.push(docNameDiv.textContent.trim());
+            }
+        });
+        console.log("Frontend: Using actively clicked documents for context:", activeDocumentNames);
+    } else {
+        // Fallback to all processed documents from localStorage if no specific one is active
+        const storedDocsJson = localStorage.getItem('activeDocs');
+        if (storedDocsJson) {
+            try {
+                activeDocumentNames = JSON.parse(storedDocsJson);
+                if (!Array.isArray(activeDocumentNames)) activeDocumentNames = []; // Ensure it's an array
+            } catch (err) {
+                console.error("Error parsing activeDocs from localStorage for query:", err);
+                activeDocumentNames = []; // Default to empty if parsing fails
+            }
+        }
+        console.log("Frontend: No active click, using documents from localStorage for context (if any):", activeDocumentNames);
+    }
+    // If activeDocumentNames is still empty here, the backend will query all available processed collections.
+
+    console.log("Frontend: Sending query to /ask with model:", selectedModel, "and documents:", activeDocumentNames);
+
+    try {
+        console.log("Frontend: Attempting fetch to /ask endpoint...");
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: queryContent,
+                model: selectedModel, 
+                active_documents: activeDocumentNames 
+            }),
+        });
+        console.log("Frontend: Fetch response received, status:", response.status);
+
+        const result = await response.json(); // Attempt to parse JSON response
+        console.log("Frontend: Parsed backend response:", result);
+
+        if (!response.ok) { // Check if response status is not 2xx
+            console.error('Ask request failed from backend with status ' + response.status + ':', result);
+            messages.push({
+                id: Date.now() + 1, // Unique ID for the error message
+                content: `Error from AI: ${result.error || "Could not get an answer. Status: " + response.status}`,
+                sender: 'ai',
+            });
+        } else {
+            // Successful response from backend
+            messages.push({
+                id: Date.now() + 1, 
+                content: result.answer_text || "AI returned an empty answer.", // This will now be the clean text
+                sender: 'ai',
+                citations_data: result.parsed_citations, // Parsed citations from backend
+                raw_answer_with_citations: result.raw_answer_with_citations, // Optional, if backend sends it
+                summarization_chain_used: result.summarization_chain_used
+            });
+        }
+    } catch (error) {
+        // This catches network errors or if response.json() fails (e.g., if backend sent non-JSON error page)
+        console.error('Frontend: Network error or other issue during /ask fetch:', error);
+        messages.push({
+            id: Date.now() + 1, // Unique ID for the network error message
+            content: 'Network error: Could not reach the AI service. Please check your connection and try again.',
+            sender: 'ai',
+        });
+    } finally {
+        isLoading = false;
+        updateSubmitButtonUI();
+        renderMessages(); // Render AI response or error message
+    }
+});
+
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            });
+
+            renderMessages();
+            scrollToBottom(false); 
+            autoScrollEnabled = true;
+            updateScrollToBottomButtonVisibility();
+            updateSubmitButtonUI();
+
+            // === START: Pixel Sparks ===
+            const sparksContainer = document.getElementById('pixel-sparks-container');
+            const numSparks = 70; // Adjust number of sparks as desired
+            const sparkColors = ['spark-blue', 'spark-purple', 'spark-rose', '']; // Last one is default white
+
+            if (sparksContainer) {
+                // Create initial sparks
+                const createSpark = () => {
+                    const spark = document.createElement('div');
+                    spark.classList.add('spark');
+
+                    // More variable sizes
+                    const sizeRoll = Math.random();
+                    if (sizeRoll > 0.92) spark.classList.add('spark-large');
+                    else if (sizeRoll > 0.7) spark.classList.add('spark-medium');
+
+                    // Random color
+                    const colorClass = sparkColors[Math.floor(Math.random() * sparkColors.length)];
+                    if (colorClass) spark.classList.add(colorClass);
+
+                    // More random position with better distribution
+                    spark.style.left = `${Math.random() * 110 - 5}%`;
+                    spark.style.top = `${Math.random() * 110 - 5}%`;
+                    
+                    // Avoid center area where chat is (but with some randomness to the boundary)
+                    const leftPos = parseFloat(spark.style.left);
+                    const topPos = parseFloat(spark.style.top);
+                    if ((leftPos > 14.5 && leftPos < 64) && (topPos > 8 && topPos < 92)) {
+                        // Randomly place at edges instead of center
+                        if (Math.random() > 0.5) {
+                            spark.style.left = Math.random() > 0.5 ? `${(Math.random()*100)%15}%` : '64%';
+                        } else {
+                            spark.style.top = Math.random() > 0.5 ? '0%' : '100%';
+                        }
+                    }
+                    
+                    // Much more variable timing
+                    spark.style.setProperty('--spark-duration', `${Math.random() * 8 + 1}s`); // 1s to 9s
+                    spark.style.setProperty('--spark-delay', `${Math.random() * 10}s`); // 0s to 10s delay
+                    spark.style.setProperty('--spark-opacity', `${Math.random() * 0.4 + 0.05}`); // 0.05 to 0.45 opacity
+                    
+                    // Random starting point in animation
+                    spark.style.animationDelay = `-${Math.random() * 20}s`;
+                    
+                    return spark;
+                };
+
+                // Create initial batch of sparks
+                for (let i = 0; i < numSparks; i++) {
+                    sparksContainer.appendChild(createSpark());
+                }
+                
+                // Periodically add/remove sparks to make pattern less predictable
+                setInterval(() => {
+                    // Remove a random spark sometimes
+                    if (Math.random() > 0.7 && sparksContainer.children.length > numSparks/2) {
+                        const randomIndex = Math.floor(Math.random() * sparksContainer.children.length);
+                        if (sparksContainer.children[randomIndex]) {
+                            sparksContainer.children[randomIndex].remove();
+                        }
+                    }
+                    
+                    // Add a new spark sometimes
+                    if (Math.random() > 0.4 && sparksContainer.children.length < numSparks*1.5) {
+                        sparksContainer.appendChild(createSpark());
+                    }
+                }, 2000);
+            }
+            // === END: Pixel Sparks ===
+        });    </script>    <!-- Documents functionality -->    <script src="/static/js/documents.js"></script>
+    <!-- Enhanced chat functionality -->
+    <script src="/static/js/chat.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements (keep existing) ---
+            const messageItemsContainer = document.getElementById('messageItemsContainer');
+            const chatForm = document.getElementById('chatForm');
+            const chatInput = document.getElementById('chatInput');
+            const messageList = document.getElementById('messageList');
+            const scrollToBottomButton = document.getElementById('scrollToBottomButton');
+            const modelSelect = document.getElementById('modelSelect');
+            const sendButton = document.getElementById('sendButton');
+            const arrowUpIcon = document.getElementById('arrowUpIcon');
+            const squareIcon = document.getElementById('squareIcon');
+            const submitButtonTooltipWrapper = document.getElementById('submitButtonTooltipWrapper');
+            // No need for document panel elements here, they are handled by documents.js
+
+            // --- Initial messages data (keep or modify as desired) ---
+            let messages = [
+                { id: Date.now() - 2, content: "Hello! I'm DocuMind AI. How can I help you with your documents today?", sender: "ai" },
+                // { id: Date.now() -1, content: "I have a question about the component library.", sender: "user" },
+                // { id: Date.now(), content: "Sure! I'd be happy to help. What would you like to know?", sender: "ai" },
+            ];
+            let isLoading = false;
+            let autoScrollEnabled = true;
+            let selectedModel = "gemini-1.5-flash-latest"; // Default to a model your backend supports
+            const MAX_TEXTAREA_HEIGHT = 240;
+
+            const updateSubmitButtonUI = () => { /* ... keep existing ... */ 
+                if (isLoading) { arrowUpIcon.classList.add('hidden'); squareIcon.classList.remove('hidden'); sendButton.disabled = true; if (submitButtonTooltipWrapper) { submitButtonTooltipWrapper.setAttribute('data-tooltip', 'Stop generation'); submitButtonTooltipWrapper.setAttribute('title', 'Stop generation'); }
+                } else { arrowUpIcon.classList.remove('hidden'); squareIcon.classList.add('hidden'); sendButton.disabled = false; if (submitButtonTooltipWrapper) { submitButtonTooltipWrapper.setAttribute('data-tooltip', 'Send message'); submitButtonTooltipWrapper.setAttribute('title', 'Send message'); } }
+            };
+            
+            if(chatInput) chatInput.addEventListener('input', () => { /* ... keep existing for auto-resize ... */ 
+                chatInput.style.height = 'auto'; const newHeight = Math.min(chatInput.scrollHeight, MAX_TEXTAREA_HEIGHT); chatInput.style.height = `${newHeight}px`;
+            });            
+            
+            if(modelSelect) modelSelect.addEventListener('change', (event) => { /* ... keep existing ... */
+                selectedModel = event.target.value; console.log(`Model changed to: ${selectedModel}`);
+                // IMPORTANT: Currently, your backend Flask app is hardcoded to use GENERATION_MODEL_NAME.
+                // To make this dropdown truly effective, the selectedModel would need to be passed to the
+                // /ask endpoint, and the backend would need logic to instantiate/use different models.
+                // For now, this dropdown is cosmetic on the frontend regarding actual model use by backend.
+            });
+            if(modelSelect) selectedModel = modelSelect.value; // Initialize
+
+            const isScrolledToBottom = () => { /* ... keep existing ... */ return messageList.scrollHeight - messageList.clientHeight <= messageList.scrollTop + 20; };
+            const updateScrollToBottomButtonVisibility = () => { /* ... keep existing ... */ if (!isScrolledToBottom() && messageList.scrollHeight > messageList.clientHeight) { scrollToBottomButton.classList.add('visible'); } else { scrollToBottomButton.classList.remove('visible'); }};
+            const scrollToBottom = (smooth = true) => { /* ... keep existing ... */ if(messageList) messageList.scrollTo({top: messageList.scrollHeight, behavior: smooth ? 'smooth':'auto'}); autoScrollEnabled = true; updateScrollToBottomButtonVisibility();};
+            if(messageList) messageList.addEventListener('scroll', () => { /* ... keep existing ... */ if (!isScrolledToBottom() && messageList.scrollTop > 0) { autoScrollEnabled = false;} else if (isScrolledToBottom()) { autoScrollEnabled = true;} updateScrollToBottomButtonVisibility();});
+            const disableAutoScrollOnInteraction = () => { /* ... keep existing ... */ if (!isScrolledToBottom()) { autoScrollEnabled = false; updateScrollToBottomButtonVisibility();}};
+            if(messageList) messageList.addEventListener('wheel', disableAutoScrollOnInteraction);
+            if(messageList) messageList.addEventListener('touchmove', disableAutoScrollOnInteraction);
+            if(scrollToBottomButton) scrollToBottomButton.addEventListener('click', () => scrollToBottom(true));
+            
+            const createMessageBubbleElement = (message) => { /* ... keep your existing comprehensive function ... */ 
+                const bubbleDiv = document.createElement('div'); bubbleDiv.classList.add('chat-bubble', message.sender === 'user' ? 'sent' : 'received'); bubbleDiv.dataset.messageId = message.id;
+                const avatarDiv = document.createElement('div'); avatarDiv.classList.add('chat-bubble-avatar'); const fallbackTextContent = message.sender === 'user' ? 'US' : 'AI';
+                const fallbackSpan = document.createElement('span'); fallbackSpan.classList.add('fallback-text'); fallbackSpan.textContent = fallbackTextContent; fallbackSpan.style.display = 'none'; avatarDiv.appendChild(fallbackSpan);
+                if (message.sender === 'user') { const userAvatarSrc = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop"; if (userAvatarSrc) { const img = document.createElement('img'); img.src = userAvatarSrc; img.alt = 'User avatar'; img.onerror = () => { img.style.display = 'none'; fallbackSpan.style.display = 'flex'; }; avatarDiv.insertBefore(img, fallbackSpan); } else { fallbackSpan.style.display = 'flex'; }
+                } else { const aiSvgIconString = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"><path d="M0 0 C9.69242413 6.95288386 16.11995831 16.46391612 18.3125 28.3125 C19.20255131 42.86141557 16.76980464 53.93664943 7.56640625 65.5078125 C1.29219651 72.36900652 -6.61295146 76.49759029 -15.6875 78.3125 C-15.6875 95.1425 -15.6875 111.9725 -15.6875 129.3125 C-11.16675781 129.29155273 -6.64601563 129.27060547 -1.98828125 129.24902344 C12.98728159 129.18259503 27.96285042 129.13829701 42.93852234 129.10525131 C52.0137792 129.08469022 61.08889575 129.05669417 70.1640625 129.01074219 C78.08073434 128.97067559 85.99730447 128.94502039 93.9140749 128.93614602 C98.09985774 128.93096456 102.28534984 128.91892363 106.47103882 128.88957977 C110.42405159 128.86209595 114.37665844 128.85412022 118.32975769 128.86006927 C119.76791096 128.85898356 121.20608017 128.85122813 122.64414978 128.8356781 C141.27513734 128.64438222 157.31037554 133.04632072 171.09887695 146.0065918 C182.50888799 157.19497629 189.18496563 172.04000378 189.53955078 188.11962891 C189.53924116 189.7594742 189.52837038 191.39934604 189.5078125 193.0390625 C189.50356766 194.34960098 189.50356766 194.34960098 189.49923706 195.68661499 C189.48817303 198.43705814 189.46309581 201.18715774 189.4375 203.9375 C189.42745234 205.81900567 189.41832964 207.70051651 189.41015625 209.58203125 C189.38827912 214.15898357 189.35384719 218.73568385 189.3125 223.3125 C190.74468872 223.29292236 190.74468872 223.29292236 192.20581055 223.27294922 C193.46176025 223.26279785 194.71770996 223.25264648 196.01171875 223.2421875 C197.87703247 223.22260986 197.87703247 223.22260986 199.7800293 223.20263672 C208.92942354 223.4871918 216.38261053 227.84273355 223.0703125 233.90625 C231.40892456 242.78959551 231.91870649 253.21747817 231.84375 264.8125 C231.84645171 266.2988307 231.85033974 267.78515966 231.85534668 269.27148438 C231.86120996 272.37126664 231.85278259 275.47058466 231.83398438 278.5703125 C231.81119598 282.51758796 231.82433633 286.46377508 231.84827423 290.41101074 C231.86281899 293.47566738 231.8580869 296.54007154 231.84776306 299.60473633 C231.84511964 301.05900201 231.8482803 302.5132916 231.85768127 303.9675293 C231.92229808 316.76816484 229.79235563 325.67021825 220.828125 335.109375 C213.78465388 341.27788076 206.30850289 343.47926685 197.125 343.375 C196.37541016 343.37048828 195.62582031 343.36597656 194.85351562 343.36132812 C193.00647617 343.34956354 191.15947787 343.33162865 189.3125 343.3125 C189.3439209 345.04983398 189.3439209 345.04983398 189.37597656 346.82226562 C189.44942568 351.1982747 189.49467335 355.57423173 189.53222656 359.95068359 C189.55210682 361.83000914 189.57922087 363.70927483 189.61425781 365.58837891 C189.98675596 386.10864428 187.31595348 403.5897168 172.578125 419.03515625 C171.83046875 419.78667969 171.0828125 420.53820312 170.3125 421.3125 C169.70921875 421.95058594 169.1059375 422.58867187 168.484375 423.24609375 C164.42061523 427.21267666 159.95800211 429.70827385 154.875 432.125 C154.26640137 432.41528076 153.65780273 432.70556152 153.03076172 433.00463867 C145.44486995 436.41698102 137.89366341 437.6159969 129.62207031 437.55732727 C128.38274435 437.56072413 128.38274435 437.56072413 127.1183815 437.56418961 C124.37571546 437.56944711 121.6332795 437.56068588 118.890625 437.55200195 C116.91377694 437.55311589 114.93692921 437.55517534 112.96008301 437.55810547 C108.71551669 437.56281498 104.47100575 437.56172089 100.22644043 437.55632973 C93.51062045 437.54870193 86.79490651 437.55939525 80.07910156 437.5735321 C60.98632375 437.6112221 41.89359463 437.62945488 22.80078125 437.61791992 C12.24642294 437.61170072 1.69223644 437.6232956 -8.86207962 437.65436524 C-15.53416942 437.67300013 -22.20577178 437.66971995 -28.87785339 437.65019763 C-33.03236651 437.64330603 -37.18661641 437.65729205 -41.34107971 437.67714691 C-43.26269738 437.68218499 -45.1843596 437.67873313 -47.10594177 437.66601372 C-60.74764239 437.36410688 -60.74764239 437.36410688 -72.6875 443.3125 C-74.1062087 444.24315187 -75.52939193 445.16704146 -76.95825195 446.08203125 C-78.44993142 447.09266955 -79.93899327 448.10717932 -81.42578125 449.125 C-82.24884766 449.68345108 -83.07191406 450.24190216 -83.91992188 450.817276 C-85.69245915 452.02002931 -87.46396557 453.22430299 -89.23452759 454.42996216 C-93.99375952 457.66971033 -98.76193927 460.89620726 -103.53125 464.12109375 C-104.51958328 464.78942734 -105.50791656 465.45776093 -106.52619934 466.14634705 C-117.62781645 473.64119013 -128.80813969 481.01585282 -140 488.375 C-141.42706772 489.31339722 -141.42706772 489.31339722 -142.88296509 490.27075195 C-146.38709105 492.57440546 -149.89133395 494.8778749 -153.39746094 497.17848206 C-154.51229858 497.91009804 -154.51229858 497.91009804 -155.6496582 498.65649414 C-156.34173874 499.10993698 -157.03381927 499.56337982 -157.74687195 500.03056335 C-159.54131919 501.21593614 -161.31901311 502.42326369 -163.09619141 503.63427734 C-167.07771692 506.21285341 -169.01997804 505.97928885 -173.6875 505.3125 C-176.8547802 502.8140388 -178.48422626 501.32434978 -179.28877258 497.31950378 C-179.27766953 496.21141861 -179.26656647 495.10333344 -179.25512695 493.96166992 C-179.2547493 492.7007402 -179.25437164 491.43981049 -179.25398254 490.14067078 C-179.22845324 488.77475994 -179.20237333 487.40885931 -179.17578125 486.04296875 C-179.16644859 484.63765218 -179.15933461 483.23231928 -179.15434265 481.82698059 C-179.13530772 478.13911541 -179.08623971 474.45224449 -179.03082275 470.76477051 C-178.97955304 466.99761402 -178.9568123 463.23029589 -178.93164062 459.46289062 C-178.87811537 452.0789752 -178.79284782 444.69587724 -178.6875 437.3125 C-179.30183899 437.31725845 -179.91617798 437.32201691 -180.5491333 437.32691956 C-181.35695251 437.33062057 -182.16477173 437.33432159 -182.99707031 437.33813477 C-183.7970343 437.34289322 -184.59699829 437.34765167 -185.42120361 437.35255432 C-200.02114966 437.09451617 -212.80354025 428.32271471 -222.6875 418.3125 C-223.24953125 417.77238281 -223.8115625 417.23226563 -224.390625 416.67578125 C-238.55216241 401.88070138 -239.13931666 382.16545145 -238.875 363 C-238.85991845 361.08399495 -238.84623622 359.16797836 -238.83398438 357.25195312 C-238.80127091 352.60517831 -238.74968253 347.95897005 -238.6875 343.3125 C-239.7801416 343.32917725 -240.8727832 343.34585449 -241.99853516 343.36303711 C-243.44954072 343.37652665 -244.90055013 343.38960724 -246.3515625 343.40234375 C-247.42869507 343.42041077 -247.42869507 343.42041077 -248.52758789 343.43884277 C-258.70466417 343.50575894 -265.16965762 339.72749604 -272.484375 332.7578125 C-278.51872414 326.06011292 -280.78959696 319.66963039 -280.86450195 310.77490234 C-280.87107315 310.12713837 -280.87764435 309.47937439 -280.88441467 308.8119812 C-280.90407727 306.67413193 -280.91579725 304.53635284 -280.92578125 302.3984375 C-280.92985678 301.66437305 -280.9339323 300.93030861 -280.93813133 300.17399979 C-280.95896665 296.28511083 -280.97327675 292.39625685 -280.98266602 288.50732422 C-280.99369805 284.51291696 -281.02806739 280.51907173 -281.06783772 276.52486229 C-281.09413086 273.4345301 -281.10236923 270.34432898 -281.10594749 267.25389481 C-281.11078431 265.78284555 -281.12231432 264.31180099 -281.14098549 262.84086227 C-281.28605064 250.65039031 -279.62190064 241.42439506 -271.0390625 232.359375 C-263.22603024 225.55866253 -255.55821798 223.15482974 -245.375 223.25 C-244.12074219 223.25902344 -242.86648437 223.26804688 -241.57421875 223.27734375 C-240.14529297 223.29474609 -240.14529297 223.29474609 -238.6875 223.3125 C-238.70321045 222.17409668 -238.7189209 221.03569336 -238.73510742 219.86279297 C-238.79008475 215.57250256 -238.8240924 211.28224214 -238.85229492 206.99169922 C-238.86722913 205.14724463 -238.88758395 203.30282457 -238.91381836 201.45849609 C-239.1987301 180.88898562 -236.68806188 162.84723687 -221.94506836 147.37426758 C-208.70730082 134.14099733 -193.19268212 129.10278348 -174.79718018 129.06365967 C-173.39782618 129.07073472 -171.99847317 129.07800429 -170.59912109 129.08544922 C-169.10012825 129.0860144 -167.60113486 129.08569468 -166.10214233 129.08456421 C-162.06149167 129.08399387 -158.02096142 129.09569608 -153.98033857 129.10971212 C-149.74695933 129.12227309 -145.51357688 129.12339419 -141.28018188 129.12576294 C-133.27647988 129.13196201 -125.27283297 129.14835141 -117.26915514 129.16846192 C-108.15181305 129.19087005 -99.03446824 129.20182667 -89.91710544 129.21185279 C-71.17386611 129.23271914 -52.43070224 129.26937557 -33.6875 129.3125 C-33.6875 112.4825 -33.6875 95.6525 -33.6875 78.3125 C-36.9875 77.3225 -40.2875 76.3325 -43.6875 75.3125 C-46.97873068 73.65497717 -49.79189136 71.58568809 -52.6875 69.3125 C-53.30496094 68.83296875 -53.92242187 68.3534375 -54.55859375 67.859375 C-61.82763389 61.44837301 -67.26221897 50.50347625 -67.92578125 40.84375 C-68.30840151 26.98841543 -65.32576318 15.5475025 -55.6875 5.15625 C-40.32345499 -9.54933594 -17.82502146 -10.84607238 0 0 Z M-43.5625 19.0625 C-48.36226145 25.0983949 -50.37910454 30.99022683 -50.09375 38.73046875 C-48.90234047 46.3027928 -44.78354451 52.20910873 -38.84765625 56.90234375 C-32.59175535 60.98621396 -26.70462848 61.91373614 -19.328125 60.9453125 C-12.04105407 59.1990026 -6.87543848 54.35304678 -2.6875 48.3125 C0.95796947 41.8721706 1.3801024 35.81120194 -0.30859375 28.6953125 C-3.02429084 20.75340723 -7.87486716 16.58541573 -14.9375 12.375 C-25.6956105 9.32686869 -35.7676854 10.79576552 -43.5625 19.0625 Z M-211.8984375 163.890625 C-218.58798582 172.94634543 -221.00588344 182.63944449 -220.94819641 193.75495911 C-220.95202196 194.5545584 -220.95584751 195.3541577 -220.95978898 196.17798728 C-220.97002567 198.83072245 -220.96614473 201.48323738 -220.9621582 204.13598633 C-220.96650989 206.04885557 -220.97169455 207.96172308 -220.97764587 209.87458801 C-220.99099891 215.05240136 -220.99161859 220.23014155 -220.98908257 225.40796876 C-220.98801022 229.73922232 -220.99290306 234.07046123 -220.997688 238.40171164 C-221.0087707 248.62532223 -221.00922774 258.84889608 -221.00317383 269.07250977 C-220.99713624 279.59880892 -221.00944248 290.12497432 -221.0307439 300.65125066 C-221.04839206 309.70717969 -221.05435613 318.76306628 -221.05110615 327.81901187 C-221.04929807 333.21952019 -221.05188185 338.61993313 -221.06582069 344.0204258 C-221.07844656 349.10207583 -221.07641006 354.18351828 -221.06340981 359.26516533 C-221.06105471 361.12263689 -221.06374014 362.98012328 -221.07203293 364.83757782 C-221.13981382 381.20899075 -219.56771497 394.80387152 -208.1875 407.5 C-199.32893227 415.78704723 -189.76944985 418.72330915 -178.05078125 419.8671875 C-172.24095985 420.63643215 -168.33792177 422.57744122 -164.25 426.875 C-162.04516398 430.3145442 -161.55719212 432.97033412 -161.48217773 436.9675293 C-161.4522599 438.37865242 -161.4522599 438.37865242 -161.42173767 439.81828308 C-161.39666893 441.33715874 -161.39666893 441.33715874 -161.37109375 442.88671875 C-161.35031265 443.92568802 -161.32953156 444.96465729 -161.30812073 446.03511047 C-161.24269344 449.35667253 -161.18377179 452.67831416 -161.125 456 C-161.08180831 458.2506593 -161.03819381 460.50131052 -160.99414062 462.75195312 C-160.88701902 468.2720511 -160.78523984 473.79222837 -160.6875 479.3125 C-154.38402811 475.94578867 -148.42422768 472.2505775 -142.52734375 468.21875 C-141.67146667 467.63837982 -140.8155896 467.05800964 -139.93377686 466.46005249 C-138.10647761 465.22077495 -136.28021788 463.97996348 -134.45492554 462.73773193 C-129.65854418 459.47469677 -124.85273611 456.2256131 -120.046875 452.9765625 C-119.08549118 452.32640167 -118.12410736 451.67624084 -117.1335907 451.00637817 C-108.93088909 445.46470835 -100.69656078 439.97263678 -92.42459106 434.53491211 C-91.06950202 433.64406934 -89.71521864 432.7519997 -88.36178589 431.85864258 C-86.49743611 430.62871736 -84.63015406 429.40339463 -82.76171875 428.1796875 C-81.20843872 427.16044189 -81.20843872 427.16044189 -79.6237793 426.12060547 C-72.29908992 421.61019976 -67.09627671 420.16184261 -58.57383728 420.18119812 C-57.33691087 420.17802455 -57.33691087 420.17802455 -56.07499605 420.17478687 C-53.30771519 420.16878843 -50.54047994 420.16978692 -47.77319336 420.1706543 C-45.79047569 420.16762261 -43.80775872 420.16410113 -41.82504272 420.16012573 C-37.55203613 420.1522357 -33.2790379 420.14709136 -29.00602531 420.14383507 C-22.24386417 420.1379231 -15.48175561 420.12137992 -8.71961975 420.10249329 C-6.40383438 420.09615576 -4.08804897 420.08983013 -1.77226353 420.08351612 C-0.03250506 420.0787674 -0.03250506 420.0787674 1.74240005 420.07392275 C17.48540249 420.0318656 33.22838068 419.99888331 48.97143555 419.98657227 C59.58986138 419.97818335 70.2081572 419.95566038 80.826518 419.9172166 C86.44338381 419.89748143 92.06005539 419.88504293 97.67695808 419.89005089 C102.9654513 419.89470847 108.25357686 419.88083104 113.541996 419.85303879 C115.47727311 419.84614531 117.41258838 419.84598049 119.34786415 419.85323906 C135.56659671 419.90790039 147.5874089 417.35068368 160 406.1875 C168.62436066 397.12189298 171.63632532 385.0341323 171.57319641 372.87004089 C171.57702196 372.0704416 171.58084751 371.2708423 171.58478898 370.44701272 C171.59502567 367.79427755 171.59114473 365.14176262 171.5871582 362.48901367 C171.59150989 360.57614443 171.59669455 358.66327692 171.60264587 356.75041199 C171.61599891 351.57259864 171.61661859 346.39485845 171.61408257 341.21703124 C171.61301022 336.88577768 171.61790306 332.55453877 171.622688 328.22328836 C171.6337707 317.99967777 171.63422774 307.77610392 171.62817383 297.55249023 C171.62213624 287.02619108 171.63444248 276.50002568 171.6557439 265.97374934 C171.67339206 256.91782031 171.67935613 247.86193372 171.67610615 238.80598813 C171.67429807 233.40547981 171.67688185 228.00506687 171.69082069 222.6045742 C171.70344656 217.52292417 171.70141006 212.44148172 171.68840981 207.35983467 C171.68605471 205.50236311 171.68874014 203.64487672 171.69703293 201.78742218 C171.76413862 185.57909434 170.34783781 172.36392251 159.0546875 159.80078125 C150.66554838 151.64092729 140.49051573 147.2001875 128.76725006 147.17827892 C127.65759211 147.17382108 126.54793416 147.16936324 125.40465021 147.16477031 C123.58381552 147.16504685 123.58381552 147.16504685 121.72619629 147.16532898 C120.43252687 147.16165229 119.13885745 147.1579756 117.80598593 147.1541875 C114.21667862 147.14418795 110.62738803 147.140454 107.03806877 147.13779819 C103.16601733 147.13388902 99.29397905 147.12431107 95.42193604 147.11558533 C86.07126482 147.09583752 76.72059256 147.08575653 67.36990571 147.07685754 C62.96341523 147.0724716 58.55692594 147.06710556 54.1504364 147.06186867 C39.49670918 147.04485756 24.84298271 147.03036444 10.18924713 147.02311993 C6.38788349 147.02121012 2.58651986 147.01928977 -1.21484375 147.01733398 C-2.1596217 147.01685024 -3.10439966 147.0163665 -4.07780725 147.0158681 C-19.37501263 147.00757172 -34.67213972 146.9822409 -49.96931094 146.94975331 C-65.68461603 146.91665059 -81.39988137 146.89866824 -97.1152215 146.89547569 C-105.93470777 146.89331349 -114.75407988 146.88460752 -123.5735321 146.85901451 C-131.08623996 146.83726354 -138.59880592 146.82927863 -146.11154169 146.83898129 C-149.94105181 146.8435134 -153.77026944 146.84170389 -157.59973907 146.82221985 C-161.76180544 146.80122758 -165.9232286 146.81161385 -170.08532715 146.82475281 C-171.28137117 146.81378356 -172.47741519 146.80281432 -173.70970297 146.79151267 C-189.26231195 146.90956036 -201.84062355 151.94947537 -211.8984375 163.890625 Z M-257.6875 245.3125 C-261.71506375 249.76401783 -262.81033663 252.19944396 -262.86450195 258.13574219 C-262.87733719 259.3575116 -262.89017242 260.57928101 -262.90339661 261.83807373 C-262.91156524 263.17850336 -262.91900874 264.51893759 -262.92578125 265.859375 C-262.92985678 266.53407082 -262.9339323 267.20876663 -262.93813133 267.90390778 C-262.9589944 271.47695103 -262.97329346 275.04995588 -262.98266602 278.62304688 C-262.99371432 282.30628739 -263.02809415 285.98892106 -263.06783772 289.67194748 C-263.09404157 292.50991911 -263.10236126 295.3477472 -263.10594749 298.18582916 C-263.11316184 300.20102044 -263.13958771 302.21611347 -263.16633606 304.23114014 C-263.23987317 313.10781492 -263.23987317 313.10781492 -258.6875 320.3125 C-251.38641321 326.74440979 -250.63307838 325.3125 -238.6875 325.3125 C-238.6875 297.5925 -238.6875 269.8725 -238.6875 241.3125 C-249.66800399 240.70606433 -249.66800399 240.70606433 -257.6875 245.3125 Z M189.3125 241.3125 C189.3125 269.0325 189.3125 296.7525 189.3125 325.3125 C200.65916932 326.2447746 200.65916932 326.2447746 208.3125 321.3125 C212.2897413 316.79779366 213.43503975 314.45809198 213.48950195 308.48925781 C213.50233719 307.2674884 213.51517242 306.04571899 213.52839661 304.78692627 C213.53656524 303.44649664 213.54400874 302.10606241 213.55078125 300.765625 C213.55485678 300.09092918 213.5589323 299.41623337 213.56313133 298.72109222 C213.5839944 295.14804897 213.59829346 291.57504412 213.60766602 288.00195312 C213.61871432 284.31871261 213.65309415 280.63607894 213.69283772 276.95305252 C213.71904157 274.11508089 213.72736126 271.2772528 213.73094749 268.43917084 C213.73816184 266.42397956 213.76458771 264.40888653 213.79133606 262.39385986 C213.8629274 253.518419 213.8629274 253.518419 209.3125 246.3125 C202.46302374 240.13126533 199.72084686 241.3125 189.3125 241.3125 Z " fill="#ffffff" transform="translate(280.6875,6.6875)"/> <path d="M0 0 C8.01586887 8.96766035 12.11674298 19.99215042 12 32 C11.27765722 43.55748448 6.73187961 55.11902282 -2 63 C-12.72410644 71.53382651 -24.00554579 74.74889761 -37.6953125 73.81640625 C-47.92175458 72.2216074 -58.15056194 66.76882572 -65 59 C-72.20229507 48.975849 -75.94477181 38.36792185 -75 26 C-72.99278251 13.86186591 -67.80272188 2.63529914 -57.609375 -4.7265625 C-38.52336687 -16.61140805 -16.99091466 -15.29975052 0 0 Z M-50 13 C-54.92754793 18.97903305 -57.54733009 25.20054619 -57 33 C-55.4582685 40.69622417 -52.16192735 46.68822182 -45.6875 51.25 C-39.4204617 55.13882996 -33.95508588 56.63858076 -26.62109375 55.65625 C-18.53606244 53.63197986 -13.32269957 49.04488116 -9.05859375 42.05078125 C-5.93409653 35.99778848 -5.76749484 28.01681733 -7.75390625 21.54296875 C-8.71298403 19.57591902 -9.7672641 17.8060012 -11 16 C-11.53625 15.113125 -12.0725 14.22625 -12.625 13.3125 C-23.68075714 2.54768384 -38.74570724 2.95004115 -50 13 Z " fill="#ffffff" transform="translate(390,234)"/><path d="M0 0 C8.3912395 7.99006471 13.0685797 18.49743062 14.1640625 30 C14.46993576 42.99961334 9.69170845 54.50474833 0.9765625 64.015625 C-2.63740311 67.33543062 -6.6828801 69.65100567 -11.0390625 71.8671875 C-11.67457031 72.1971875 -12.31007812 72.5271875 -12.96484375 72.8671875 C-22.00643597 76.89427782 -33.735812 77.04567714 -43.0390625 73.8671875 C-56.11249659 68.43254244 -64.12357014 61.54134061 -70.109375 48.54296875 C-74.0620671 37.85534983 -73.9768592 26.270799 -69.77734375 15.6875 C-64.31808586 4.19583378 -57.41386267 -3.0619801 -45.57421875 -8.203125 C-29.51263365 -13.85899941 -13.05373855 -10.98022051 0 0 Z M-49.0390625 15.8671875 C-53.62164076 22.02189114 -54.85563062 28.08715244 -54.515625 35.68359375 C-53.4822305 42.58700786 -50.71536458 47.876825 -45.2890625 52.3046875 C-38.76214389 56.60707579 -32.42952704 58.6860756 -24.59765625 57.57421875 C-17.91033874 55.72627299 -11.7420522 51.79197102 -8.0390625 45.8671875 C-7.4821875 44.9803125 -6.9253125 44.0934375 -6.3515625 43.1796875 C-3.64418937 36.34679341 -3.26061503 29.91472683 -5.97265625 23.03125 C-9.62327998 15.62302456 -14.26901368 10.87453198 -22.0390625 7.8671875 C-31.85735989 5.09394911 -42.07279163 8.57654481 -49.0390625 15.8671875 Z " fill="#ffffff" transform="translate(183.0390625,232.1328125)"/><path d="M0 0 C2.17998223 1.55214734 4.04798724 3.29148799 5.99609375 5.125 C15.61305975 14.12333076 29.54865235 16.81360307 42.4140625 16.38671875 C54.81967056 15.04885906 64.88673542 11.82351372 74.0625 3.1875 C76.88647065 0.65146361 77.81089458 0.03525694 81.6875 -0.6875 C85.63155135 0.13107669 87.34854768 0.95862822 90 4 C91.07391829 7.69159412 91.43917338 9.90206656 90 13.5 C79.79943888 26.2507014 66.94723935 31.68763109 51.125 34.75 C49.75243889 34.86681371 48.37636909 34.94362994 47 35 C45.85273438 35.0515625 44.70546875 35.103125 43.5234375 35.15625 C25.3809426 35.69912823 7.93268102 32.36318928 -6 20 C-6.61101562 19.49339844 -7.22203125 18.98679687 -7.8515625 18.46484375 C-10.69618559 15.93703887 -11.96915172 14.10343246 -13.0625 10.4375 C-12.99232214 6.57771774 -12.39017026 4.98771282 -10 2 C-6.15691236 -0.56205842 -4.5659696 -0.67366765 0 0 Z " fill="#ffffff" transform="translate(217,324)"/></svg>`;
+                    const tempDiv = document.createElement('div'); tempDiv.innerHTML = aiSvgIconString;
+                    const svgElement = tempDiv.querySelector('svg');
+                    if (svgElement) { avatarDiv.insertBefore(svgElement, fallbackSpan); } else { fallbackSpan.style.display = 'flex'; }
+                }
+                const messageContentDiv = document.createElement('div'); messageContentDiv.classList.add('chat-bubble-message');
+                if (message.isLoading) {
+                    messageContentDiv.classList.add('loading');
+                    messageContentDiv.innerHTML = `<div class="loading-indicator"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+                } else { messageContentDiv.textContent = message.content; }
+                bubbleDiv.appendChild(avatarDiv); bubbleDiv.appendChild(messageContentDiv); return bubbleDiv;
+            };
+            
+            let renderedMessageIds = new Set();
+            const renderMessages = () => { /* ... keep existing ... */ 
+                document.querySelectorAll('.chat-bubble[data-message-id]').forEach(el => { const id = el.dataset.messageId; if (id && id !== 'loading') renderedMessageIds.add(id); });
+                const existingLoadingIndicators = document.querySelectorAll('.chat-bubble[data-message-id="loading"]'); existingLoadingIndicators.forEach(el => el.remove());
+                messages.forEach((message, index) => { if (renderedMessageIds.has(String(message.id))) return; const messageElement = createMessageBubbleElement(message); messageElement.style.animationDelay = `0.1s`; if(messageItemsContainer) messageItemsContainer.appendChild(messageElement); renderedMessageIds.add(String(message.id)); });
+                if (isLoading && messageItemsContainer) { const loadingBubble = { id: 'loading', sender: 'ai', isLoading: true }; const loadingElement = createMessageBubbleElement(loadingBubble); loadingElement.style.animationDelay = `0.1s`; messageItemsContainer.appendChild(loadingElement); }
+                setTimeout(() => { if (autoScrollEnabled) { scrollToBottom(true); } updateScrollToBottomButtonVisibility(); }, 0);
+            };
+
+            // --- MODIFIED: chatForm submit listener ---
+            if(chatForm) chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const queryContent = chatInput.value.trim();
+                if (!queryContent) return;
+
+                const userMessage = { id: Date.now(), content: queryContent, sender: 'user' };
+                messages.push(userMessage);
+                renderMessages(); // Render user message
+
+                chatInput.value = '';
+                chatInput.style.height = 'auto'; // Reset height
+                isLoading = true;
+                updateSubmitButtonUI();
+                renderMessages(); // Show loading indicator for AI
+
+                // Determine active documents (original filenames) for context
+                // This relies on documents.js adding 'active' class and data-id containing original filename
+                // or a more robust way to get selected document names.
+                const activeDocElements = document.querySelectorAll('.documents-list .document-item.active');
+                let activeDocumentNames = [];
+                if (activeDocElements && activeDocElements.length > 0) {
+                    activeDocElements.forEach(el => {
+                        const docNameDiv = el.querySelector('.document-name');
+                        if (docNameDiv && docNameDiv.textContent) {
+                            activeDocumentNames.push(docNameDiv.textContent.trim());
+                        }
+                    });
+                } else {
+                    // If no specific docs selected, get all from localStorage (processed ones)
+                    const storedDocsJson = localStorage.getItem('activeDocs');
+                    if (storedDocsJson) {
+                        try { activeDocumentNames = JSON.parse(storedDocsJson); } catch (err) { console.error("Error parsing activeDocs from localStorage for query:", err); }
+                    }
+                }
+                console.log("Sending query with active documents:", activeDocumentNames);
+
+
+                try {
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            query: queryContent,
+                            model: selectedModel, // from modelSelect dropdown
+                            active_documents: activeDocumentNames // list of original filenames
+                        }),
+                    });
+
+                    const result = await response.json(); // Always try to parse, even for errors
+
+                    if (!response.ok) {
+                        console.error('Ask request failed:', result);
+                        messages.push({
+                            id: Date.now() + 1,
+                            content: `Error from AI: ${result.error || "Could not get response."}`,
+                            sender: 'ai',
+                        });
+                    } else {
+                        messages.push({
+                            id: Date.now() + 1,
+                            content: result.answer_text,
+                            sender: 'ai',
+                            citations: result.parsed_citations, // For potential display
+                            summarization_chain_used: result.summarization_chain_used
+                        });
+                    }
+                } catch (error) {
+                    console.error('Network error asking question:', error);
+                    messages.push({
+                        id: Date.now() + 1,
+                        content: 'Network error: Could not reach the AI. Please try again.',
+                        sender: 'ai',
+                    });
+                } finally {
+                    isLoading = false;
+                    updateSubmitButtonUI();
+                    renderMessages(); // Render AI response or error
+                }
+            });      
+            
+            if(chatInput) chatInput.addEventListener('keydown', function(e) { /* ... keep existing ... */
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if(chatForm) chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));}
+            });
+
+            // --- Initial UI Setup Calls ---
+            renderMessages(); // Render initial messages
+            if (messageList) scrollToBottom(false); // Scroll to bottom on load
+            autoScrollEnabled = true;
+            updateScrollToBottomButtonVisibility();
+            updateSubmitButtonUI();
+
+            // === START: Pixel Sparks (keep existing) ===
+            const sparksContainer = document.getElementById('pixel-sparks-container');
+            if (sparksContainer) { /* ... your full sparks logic ... */ 
+                const numSparks = 70; const sparkColors = ['spark-blue', 'spark-purple', 'spark-rose', ''];
+                const createSpark = () => { const spark = document.createElement('div'); spark.classList.add('spark'); const sizeRoll = Math.random(); if (sizeRoll > 0.92) spark.classList.add('spark-large'); else if (sizeRoll > 0.7) spark.classList.add('spark-medium'); const colorClass = sparkColors[Math.floor(Math.random() * sparkColors.length)]; if (colorClass) spark.classList.add(colorClass); spark.style.left = `${Math.random() * 110 - 5}%`; spark.style.top = `${Math.random() * 110 - 5}%`; const leftPos = parseFloat(spark.style.left); const topPos = parseFloat(spark.style.top); if ((leftPos > 14.5 && leftPos < 64) && (topPos > 8 && topPos < 92)) { if (Math.random() > 0.5) { spark.style.left = Math.random() > 0.5 ? `${(Math.random()*100)%15}%` : '64%'; } else { spark.style.top = Math.random() > 0.5 ? '0%' : '100%'; } } spark.style.setProperty('--spark-duration', `${Math.random() * 8 + 1}s`); spark.style.setProperty('--spark-delay', `${Math.random() * 10}s`); spark.style.setProperty('--spark-opacity', `${Math.random() * 0.4 + 0.05}`); spark.style.animationDelay = `-${Math.random() * 20}s`; return spark; };
+                for (let i = 0; i < numSparks; i++) { sparksContainer.appendChild(createSpark()); }
+                setInterval(() => { if (Math.random() > 0.7 && sparksContainer.children.length > numSparks/2) { const randomIndex = Math.floor(Math.random() * sparksContainer.children.length); if (sparksContainer.children[randomIndex]) { sparksContainer.children[randomIndex].remove(); } } if (Math.random() > 0.4 && sparksContainer.children.length < numSparks*1.5) { sparksContainer.appendChild(createSpark()); } }, 2000);
+            }
+            // === END: Pixel Sparks ===
+        });    
+    </script>
+    <!-- External JS files - paths should be correct for Flask static serving -->
+    <script src="/static/js/documents.js"></script> 
+    <script src="/static/js/chat.js"></script>
+    
+    <!-- Flickering Grid Background Script (keep existing) -->
+    <script>
+        function createFlickeringGrid(options) { /* ... your full flickering grid function ... */ 
+            const config = { squareSize: 4, gridGap: 6, flickerChance: 0.1, lightColor: '#6B7280', darkColor: '#4B5563', maxOpacity: 0.5, ...options };
+            const canvas = document.getElementById(config.canvasId); const container = canvas.parentElement; if (!canvas || !container) { console.error("Canvas or container not found!"); return null; } const ctx = canvas.getContext('2d'); if (!ctx) { console.error("No 2D context"); return null; }
+            let isInView = true; let animationFrameId = null; let gridParams = null; let lastTime = 0; let currentRGBAColor = '';
+            const toRGBA = (color) => { const tempCanvas = document.createElement("canvas"); tempCanvas.width = tempCanvas.height = 1; const tempCtx = tempCanvas.getContext("2d"); if (!tempCtx) return "rgba(0,0,0,"; tempCtx.fillStyle = color; tempCtx.fillRect(0,0,1,1); const [r,g,b] = Array.from(tempCtx.getImageData(0,0,1,1).data); return `rgba(${r},${g},${b},`;};
+            const updateSquareColor = () => { currentRGBAColor = toRGBA(config.darkColor); if (gridParams && ctx) { drawGrid(ctx, canvas.width, canvas.height, gridParams.cols, gridParams.rows, gridParams.squares, gridParams.dpr); }};
+            const setupCanvas = (width, height) => { const dpr = window.devicePixelRatio || 1; canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`; const cols = Math.floor(width / (config.squareSize + config.gridGap)); const rows = Math.floor(height / (config.squareSize + config.gridGap)); const squares = new Float32Array(cols * rows); for (let i = 0; i < squares.length; i++) { squares[i] = Math.random() * config.maxOpacity; } return { cols, rows, squares, dpr }; };
+            const updateSquares = (squares, deltaTime) => { const chanceThisFrame = config.flickerChance * deltaTime; for (let i = 0; i < squares.length; i++) { if (Math.random() < chanceThisFrame) { squares[i] = Math.random() * config.maxOpacity; } } };
+            const drawGrid = (ctx, canvasWidth, canvasHeight, cols, rows, squares, dpr) => { ctx.clearRect(0, 0, canvasWidth, canvasHeight); for (let i = 0; i < cols; i++) { for (let j = 0; j < rows; j++) { const index = i * rows + j; const opacity = squares[index]; ctx.fillStyle = `${currentRGBAColor}${opacity})`; const x = i * (config.squareSize + config.gridGap) * dpr; const y = j * (config.squareSize + config.gridGap) * dpr; const size = config.squareSize * dpr; ctx.fillRect(x, y, size, size); } } };
+            const animate = (time) => { if (!isInView || !gridParams) { animationFrameId = null; return; } const deltaTime = (time - (lastTime || time)) / 1000; lastTime = time; updateSquares(gridParams.squares, deltaTime); drawGrid(ctx, canvas.width, canvas.height, gridParams.cols, gridParams.rows, gridParams.squares, gridParams.dpr); animationFrameId = requestAnimationFrame(animate); };
+            const handleResize = () => { const rect = container.getBoundingClientRect(); if(rect.width === 0 || rect.height === 0) return; gridParams = setupCanvas(rect.width, rect.height); if (gridParams && ctx) { drawGrid(ctx, canvas.width, canvas.height, gridParams.cols, gridParams.rows, gridParams.squares, gridParams.dpr); }};
+            window.addEventListener('resize', handleResize);
+            updateSquareColor(); handleResize(); lastTime = performance.now(); if (isInView) { animationFrameId = requestAnimationFrame(animate); }
+            return { cleanup: () => { if (animationFrameId) cancelAnimationFrame(animationFrameId); window.removeEventListener('resize', handleResize); console.log("Flickering Grid cleaned up."); }};
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('chat-grid-canvas')) { // Check if canvas exists before initializing
+                window.chatGridInstance = createFlickeringGrid({ canvasId: 'chat-grid-canvas', squareSize: 3, gridGap: 6, darkColor: '#4A5568', maxOpacity: 0.2, flickerChance: 0.1 });
+                window.addEventListener('beforeunload', () => { if (window.chatGridInstance) window.chatGridInstance.cleanup(); });
+            }
+        });
+    </script>
+</body>
+</html>

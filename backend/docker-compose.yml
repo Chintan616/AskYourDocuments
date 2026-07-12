@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - ENVIRONMENT=production
+      - PORT=5001
+      - ALLOWED_ORIGINS=* # Update this with actual domains in production (e.g., https://yourfrontend.com)
+      # Database connection string pointing to the pgvector service
+      - DATABASE_URL=postgresql://postgres:postgres@pgvector:5432/askyourdocs
+      # Add other necessary env vars here (e.g., OPENAI_API_KEY)
+    depends_on:
+      pgvector:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      # If you need to persist uploaded documents locally, map a volume here
+      - ./uploaded_docs:/app/uploaded_docs
+
+  pgvector:
+    image: ankane/pgvector:latest # PostgreSQL with pgvector extension pre-installed
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=askyourdocs
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d askyourdocs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

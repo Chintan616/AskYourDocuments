@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+ask_your_doc_fastapi_app.log
+
+# Mac OS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/

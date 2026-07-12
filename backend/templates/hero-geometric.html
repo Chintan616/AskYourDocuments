@@ -1,0 +1,1351 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Geometric Section</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* PASTE THE FULL CSS FROM THE PREVIOUS RESPONSE HERE */
+        /* For brevity, I'm not repeating the full CSS block here.
+           Ensure the CSS provided in the last message is inserted here.
+           It starts with: / * Custom CSS for animations and specific styles * /
+           and ends with:   .files-page.active { ... }
+        */
+
+        /* Custom CSS for animations and specific styles */
+        body {
+            font-family: sans-serif; /* Default Tailwind font stack */
+        }
+
+        #ask-docs-title:hover {
+            cursor: pointer;
+        }
+
+        #hover-indicator {
+            position: fixed; /* Use fixed to position relative to viewport */
+            display: none; /* Hidden by default */
+            padding: 6px 10px;
+            background-color: rgba(30, 30, 30, 0.85); /* Darker, more opaque background */
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Subtler border */
+            border-radius: 6px;
+            color: white;
+            font-size: 0.75rem; /* 12px */
+            font-weight: 500; /* Semi-bold text */
+            pointer-events: none; /* So it doesn't interfere with mouse events on other elements */
+            z-index: 50; /* Ensure it's above other elements */
+            backdrop-filter: blur(4px); /* Keep a slight blur for modern feel */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transform: translate(10px, 10px); /* Initial offset from cursor */
+        }
+
+        /* Hover indicator style - Note: This duplicates a previous #hover-indicator. Consolidate if desired. */
+        #hover-indicator { /* This definition seems to be a more specific one, keeping it */
+            position: absolute;
+            display: none;
+            background-color: rgba(29, 23, 23, 0.5);
+            backdrop-filter: blur(5px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 50;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            font-weight: 500;
+        }
+
+        /* Animation for the outer part of ElegantShape */
+        @keyframes elegantShapeAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(-150px) rotate(calc(var(--initial-rotate, 0deg) - 15deg));
+            }
+            50% { /* Opacity transition duration is 1.2s, total is 2.4s */
+                opacity: 1;
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotate(var(--final-rotate, 0deg));
+            }
+        }
+
+        /* Animation for the inner part (oscillation) of ElegantShape */
+        @keyframes elegantShapeOscillate {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(15px);
+            }
+        }
+
+        /* Animation for fade-up text elements */
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Base class for elegant shapes' outer container to apply animation */
+        .elegant-shape-outer-animated {
+            animation-name: elegantShapeAppear;
+            animation-duration: 2.4s;
+            animation-timing-function: cubic-bezier(0.23, 0.86, 0.39, 0.96);
+            animation-fill-mode: forwards; /* Keep the state of the last keyframe */
+        }
+
+        /* Base class for elegant shapes' inner container to apply oscillation */
+        .elegant-shape-inner-animated {
+            animation-name: elegantShapeOscillate;
+            animation-duration: 12s;
+            animation-timing-function: easeInOut;
+            animation-iteration-count: infinite;
+        }
+
+        /* Base class for fade-up animated text elements */
+        .fade-up-animated {
+            opacity: 0; /* Start hidden, animation will make it visible */
+            animation-name: fadeUp;
+            animation-duration: 1s;
+            animation-timing-function: cubic-bezier(0.25, 0.4, 0.25, 1);
+            animation-fill-mode: forwards; /* Keep the state of the last keyframe */
+        }
+
+        /* Pixel Sparks Animation */
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes slowFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-10px) translateX(5px);
+            }
+        }
+
+        .spark {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background-color: white;
+            border-radius: 50%;
+            animation: sparkle var(--spark-duration, 5s) infinite cubic-bezier(0.45, 0.05, 0.55, 0.95),
+                       slowFloat 15s infinite ease-in-out;
+            animation-delay: var(--spark-delay, 0s);
+            opacity: var(--spark-opacity, 0.5);
+        }
+
+        .spark-medium {
+            width: 2px;
+            height: 2px;
+        }
+
+        .spark-large {
+            width: 3px;
+            height: 3px;
+            box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .spark-blue {
+            background-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 0 4px 1px rgba(99, 102, 241, 0.4);
+        }
+
+        .spark-purple {
+            background-color: rgba(139, 92, 246, 0.8);
+            box-shadow: 0 0 4px 1px rgba(139, 92, 246, 0.4);
+        }
+
+        .spark-rose {
+            background-color: rgba(244, 63, 94, 0.8);
+            box-shadow: 0 0 4px 1px rgba(244, 63, 94, 0.4);
+        }
+
+        /* Shape Animations */
+        @keyframes shapeMoveLeft {
+            0% { transform: translateX(0) rotate(var(--final-rotate, 0deg)); opacity: 1; }
+            100% { transform: translateX(-120vw) rotate(calc(var(--final-rotate, 0deg) - 30deg)); opacity: 0; }
+        }
+        @keyframes shapeMoveRight {
+            0% { transform: translateX(0) rotate(var(--final-rotate, 0deg)); opacity: 1; }
+            100% { transform: translateX(120vw) rotate(calc(var(--final-rotate, 0deg) + 30deg)); opacity: 0; }
+        }
+        .animate-shape-move-left {
+            animation: shapeMoveLeft 1.5s ease-out forwards !important;
+        }
+        .animate-shape-move-right {
+            animation: shapeMoveRight 1.5s ease-out forwards !important;
+        }
+
+        /* Content Split Animations */
+        @keyframes contentSplitLeft {
+            0% {
+                opacity: 1;
+                transform: translateX(0) rotate(0deg);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-60vw) rotate(-10deg);
+                filter: blur(8px);
+            }
+        }
+
+        @keyframes contentSplitRight {
+            0% {
+                opacity: 1;
+                transform: translateX(0) rotate(0deg);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(60vw) rotate(10deg);
+                filter: blur(8px);
+            }
+        }
+
+        @keyframes contentMiddleFade {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.85);
+                filter: blur(15px);
+            }
+        }
+
+        .animate-content-left {
+            animation: contentSplitLeft 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        .animate-content-right {
+            animation: contentSplitRight 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        .animate-content-middle {
+            animation: contentMiddleFade 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        /* Interactive Hover Button Styles */
+        .interactive-hover-btn {
+            position: relative;
+            overflow: hidden;
+            border-radius: 9999px;
+            width: 128px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .interactive-hover-btn .btn-text {
+            display: inline-block;
+            transform: translateX(0);
+            transition: all 0.3s;
+            z-index: 2;
+            position: relative;
+            font-size: 1rem;
+        }
+
+        .interactive-hover-btn:hover .btn-text {
+            font-size: 1.1rem; /* Increased font size on hover for Ask button */
+            transform: translateX(12px);
+            opacity: 0;
+        }
+
+        .interactive-hover-btn .hover-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transform: translateX(12px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .interactive-hover-btn:hover .hover-content {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .interactive-hover-btn .btn-bg-dot {
+            position: absolute;
+            left: 15%; /* Moved further left to avoid text overlap */
+            top: 40%;
+            height: 8px;
+            width: 8px;
+            border-radius: 8px;
+            background-color: rgb(79, 70, 229); /* indigo-600 */
+            transition: all 0.3s;
+            z-index: 1;
+        }
+
+        .interactive-hover-btn:hover .btn-bg-dot {
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            border-radius: 9999px;
+            transform: scale(1.2);
+        }
+
+        /* Special styling for Process mode button */
+        .interactive-hover-btn.process-mode {
+            padding-left: 1.25rem; /* 5 in Tailwind */
+            padding-right: 1.25rem;
+            min-width: 110px; /* Ensure minimum width for the button */
+        }
+
+        .interactive-hover-btn.process-mode .btn-bg-dot {
+            left: 10%; /* Move further left for process button to avoid text overlap */
+            top: 42%;
+        }
+
+        .interactive-hover-btn:hover {
+            color: white;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Arrow icon for the button */
+        .arrow-right {
+            height: 16px;
+            width: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Upload Component Styles */
+        /* Custom scrollbar */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: #52525b transparent; /* zinc-600 transparent */
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: #52525b; /* zinc-600 */
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        /* Settings Panel Styles */
+        .settings-panel {
+            background-color: rgba(24, 24, 27, 0.85); /* zinc-900 with opacity */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .settings-panel.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .settings-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+        }
+
+        /* Settings Card Styles (kept from original hero-geometric for cards holding the toggles) */
+        .settings-card {
+            background-color: rgba(39, 39, 42, 0.5); /* zinc-800 with opacity */
+            border: 1px solid rgba(63, 63, 70, 0.5); /* zinc-700 with opacity */
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 8px; /* Add spacing between vertical cards */
+            width: 100%; /* Ensure full width in vertical layout */
+        }
+
+        .settings-card:hover {
+            border-color: rgba(99, 102, 241, 0.4); /* indigo-500 with opacity */
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .settings-card:after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .settings-card:hover:after {
+            opacity: 1;
+        }
+
+        /* START: LIQUID TOGGLE CSS - INTEGRATED */
+        .gooey-filter-definition {
+            position: fixed;
+            width: 0;
+            height: 0;
+            overflow: hidden; /* Ensure it doesn't take up space */
+        }
+
+        .liquid-toggle-switch {
+            position: relative;
+            display: block;
+            cursor: pointer;
+            height: 32px;
+            width: 52px;
+
+            --c-active: #4F46E5; /* indigo-600 (Matches hero-geometric theme) */
+            --c-success: #10B981;
+            --c-warning: #F59E0B;
+            --c-danger: #EF4444;
+            --c-active-inner: #FFFFFF;
+            --c-default: rgba(82, 82, 91, 0.4); /* Matches hero-geometric settings panel toggle bg */
+            --c-default-dark: rgba(82, 82, 91, 0.6); /* Matches hero-geometric settings panel toggle bg hover */
+            --c-black: #1B1B22;
+
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            perspective: 1000px;
+            -webkit-perspective: 1000px;
+        }
+
+        .liquid-toggle-switch.default { --c-background: var(--c-active); }
+        .liquid-toggle-switch.success { --c-background: var(--c-success); }
+        .liquid-toggle-switch.warning { --c-background: var(--c-warning); }
+        .liquid-toggle-switch.danger { --c-background: var(--c-danger); }
+
+        .liquid-toggle-input {
+            height: 100%;
+            width: 100%;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            border-radius: 9999px;
+            background-color: var(--c-default);
+            outline: none;
+            transition: background-color 0.5s ease;
+            transform: translate3d(0,0,0);
+            -webkit-transform: translate3d(0,0,0);
+        }
+
+        .liquid-toggle-input:hover {
+            background-color: var(--c-default-dark);
+        }
+
+        .liquid-toggle-input:checked {
+            background-color: var(--c-background);
+        }
+        .liquid-toggle-input:checked:hover {
+            background-color: var(--c-background);
+        }
+
+        .liquid-toggle-svg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            fill: var(--c-active-inner);
+            transform: translate3d(0,0,0);
+            -webkit-transform: translate3d(0,0,0);
+        }
+
+        .liquid-toggle-circle {
+            transform-gpu: translate3d(0,0,0);
+            -webkit-transform: translate3d(0,0,0);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform;
+        }
+
+        .liquid-toggle-circle-1 {
+            transform-origin: 16px 16px;
+            transform: translateX(0px) scale(1);
+        }
+
+        .liquid-toggle-circle-2 {
+            transform-origin: 36px 16px;
+            transform: translateX(-12px) scale(0);
+        }
+
+        .liquid-toggle-drop-circle {
+            transform-gpu: translate3d(0,0,0);
+            -webkit-transform: translate3d(0,0,0);
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.7s ease;
+            opacity: 0;
+            transform: translateY(10px) scale(0);
+            will-change: transform, opacity;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+        }
+
+        .liquid-toggle-switch.is-checked .liquid-toggle-circle-1 {
+            transform: translateX(12px) scale(0);
+        }
+
+        .liquid-toggle-switch.is-checked .liquid-toggle-circle-2 {
+            transform: translateX(0px) scale(1);
+        }
+
+        .liquid-toggle-switch.is-checked .liquid-toggle-drop-circle {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        /* END: LIQUID TOGGLE CSS - INTEGRATED */
+
+
+        /* Upload Component Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+            50% { box-shadow: 0 0 16px rgba(59, 130, 246, 0.8); }
+        }
+        @keyframes bounce-y {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes pulse-glow-effect {
+            0%, 100% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .animate-spin-custom {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pulse animation for the Ask button */
+        @keyframes button-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .animate-pulse { /* Tailwind class name, ensure it doesn't conflict if you also use Tailwind's pulse */
+            animation: button-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* File item entry/exit animations */
+        .file-item {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .file-item-enter {
+            opacity: 0;
+            transform: translateY(20px) scale(0.97);
+        }
+        .file-item-enter-active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .file-item-exit-active {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+
+        #upload-component {
+            display: none; /* Initially hidden by JS */
+            opacity: 0;    /* Start transparent for fade-in */
+            animation: fadeIn 0.8s ease-out forwards; /* Custom fadeIn animation */
+        }
+
+        /* Animation for checkmark appearing on completed upload */
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .pagination-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            background-color: rgba(63, 63, 70, 0.5);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover {
+            background-color: rgba(99, 102, 241, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: rgba(99, 102, 241, 0.5);
+            color: white;
+        }
+
+        /* Upload component file transitions */
+        .files-page {
+            opacity: 0;
+            transform: translateX(20px);
+            position: absolute;
+            width: 100%;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .files-page.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body class="bg-[#030303]">
+
+    <!-- SVG Gooey Filter Definition -->
+    <svg class="gooey-filter-definition">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303]">
+        <canvas id="animated-background-canvas" class="fixed inset-0 w-full h-full" style="z-index: 0; display: none;"></canvas>
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl"></div>
+
+        <!-- Pixel Sparks Layer -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- Spark elements... (kept for brevity, same as your original) -->
+            <div class="spark" style="top: 5%; left: 10%; --spark-delay: 0s; --spark-duration: 4s;"></div>
+            <div class="spark spark-medium spark-blue" style="top: 15%; left: 25%; --spark-delay: 2s; --spark-duration: 6s;"></div>
+            <div class="spark" style="top: 8%; left: 40%; --spark-delay: 1s; --spark-duration: 5s;"></div>
+            <div class="spark spark-large spark-rose" style="top: 12%; left: 65%; --spark-delay: 0.5s; --spark-duration: 7s;"></div>
+            <div class="spark" style="top: 3%; left: 80%; --spark-delay: 3s; --spark-duration: 4.5s;"></div>
+            <div class="spark spark-medium" style="top: 20%; left: 90%; --spark-delay: 1.5s; --spark-duration: 5.5s;"></div>
+            <div class="spark spark-medium spark-purple" style="top: 30%; left: 5%; --spark-delay: 2.5s; --spark-duration: 6.5s;"></div>
+            <div class="spark" style="top: 35%; left: 20%; --spark-delay: 0.7s; --spark-duration: 4.2s;"></div>
+            <div class="spark spark-large" style="top: 28%; left: 45%; --spark-delay: 3.5s; --spark-duration: 7.5s;"></div>
+            <div class="spark spark-medium spark-blue" style="top: 32%; left: 70%; --spark-delay: 1.2s; --spark-duration: 5.2s;"></div>
+            <div class="spark" style="top: 25%; left: 85%; --spark-delay: 2.2s; --spark-duration: 4.8s;"></div>
+            <div class="spark" style="top: 50%; left: 8%; --spark-delay: 1.8s; --spark-duration: 5.8s;"></div>
+            <div class="spark spark-medium spark-rose" style="top: 45%; left: 30%; --spark-delay: 0.3s; --spark-duration: 6.3s;"></div>
+            <div class="spark" style="top: 55%; left: 50%; --spark-delay: 2.8s; --spark-duration: 4.1s;"></div>
+            <div class="spark spark-large spark-blue" style="top: 48%; left: 75%; --spark-delay: 1.1s; --spark-duration: 7.1s;"></div>
+            <div class="spark spark-medium" style="top: 52%; left: 95%; --spark-delay: 3.3s; --spark-duration: 5.3s;"></div>
+            <div class="spark spark-large spark-purple" style="top: 70%; left: 15%; --spark-delay: 0.9s; --spark-duration: 6.9s;"></div>
+            <div class="spark" style="top: 65%; left: 35%; --spark-delay: 3.7s; --spark-duration: 4.7s;"></div>
+            <div class="spark spark-medium" style="top: 75%; left: 55%; --spark-delay: 1.4s; --spark-duration: 5.4s;"></div>
+            <div class="spark" style="top: 68%; left: 80%; --spark-delay: 2.6s; --spark-duration: 4.6s;"></div>
+            <div class="spark" style="top: 85%; left: 10%; --spark-delay: 3.2s; --spark-duration: 4.2s;"></div>
+            <div class="spark spark-medium spark-rose" style="top: 90%; left: 30%; --spark-delay: 0.6s; --spark-duration: 6.6s;"></div>
+            <div class="spark spark-large" style="top: 80%; left: 60%; --spark-delay: 2.1s; --spark-duration: 7.2s;"></div>
+            <div class="spark spark-medium spark-blue" style="top: 88%; left: 80%; --spark-delay: 1.7s; --spark-duration: 5.7s;"></div>
+            <div class="spark" style="top: 92%; left: 95%; --spark-delay: 2.9s; --spark-duration: 4.9s;"></div>
+        </div>
+
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Elegant shape elements... (kept for brevity, same as your original) -->
+            <div id="elegant-shape-1" class="elegant-shape-outer-animated absolute left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
+                 style="--initial-rotate: 12deg; --final-rotate: 12deg; animation-delay: 0.3s;">
+                <div class="elegant-shape-inner-animated relative" style="width: 600px; height: 140px;">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r to-transparent from-indigo-500/[0.15] backdrop-blur-[2px] border-2 border-white/[0.15] shadow-[0_8px_32px_0_rgba(255,255,255,0.1),0_0_40px_3px_rgba(99,102,241,0.4)] after:absolute after:inset-0 after:rounded-full after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]">
+                    </div>
+                </div>
+            </div>
+            <div id="elegant-shape-2" class="elegant-shape-outer-animated absolute right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
+                 style="--initial-rotate: -15deg; --final-rotate: -15deg; animation-delay: 0.5s;">
+                <div class="elegant-shape-inner-animated relative" style="width: 500px; height: 120px;">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r to-transparent from-rose-500/[0.15] backdrop-blur-[2px] border-2 border-white/[0.15] shadow-[0_8px_32px_0_rgba(255,255,255,0.1),0_0_40px_3px_rgba(244,63,94,0.4)] after:absolute after:inset-0 after:rounded-full after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]">
+                    </div>
+                </div>
+            </div>
+            <div id="elegant-shape-3" class="elegant-shape-outer-animated absolute left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+                 style="--initial-rotate: -8deg; --final-rotate: -8deg; animation-delay: 0.4s;">
+                <div class="elegant-shape-inner-animated relative" style="width: 300px; height: 80px;">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r to-transparent from-violet-500/[0.15] backdrop-blur-[2px] border-2 border-white/[0.15] shadow-[0_8px_32px_0_rgba(255,255,255,0.1),0_0_40px_3px_rgba(139,92,246,0.4)] after:absolute after:inset-0 after:rounded-full after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]">
+                    </div>
+                </div>
+            </div>
+            <div id="elegant-shape-4" class="elegant-shape-outer-animated absolute right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
+                 style="--initial-rotate: 20deg; --final-rotate: 20deg; animation-delay: 0.6s;">
+                <div class="elegant-shape-inner-animated relative" style="width: 200px; height: 60px;">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r to-transparent from-amber-500/[0.15] backdrop-blur-[2px] border-2 border-white/[0.15] shadow-[0_8px_32px_0_rgba(255,255,255,0.1),0_0_40px_3px_rgba(245,158,11,0.4)] after:absolute after:inset-0 after:rounded-full after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]">
+                    </div>
+                </div>
+            </div>
+            <div id="elegant-shape-5" class="elegant-shape-outer-animated absolute left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
+                 style="--initial-rotate: -25deg; --final-rotate: -25deg; animation-delay: 0.7s;">
+                <div class="elegant-shape-inner-animated relative" style="width: 150px; height: 40px;">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r to-transparent from-cyan-500/[0.15] backdrop-blur-[2px] border-2 border-white/[0.15] shadow-[0_8px_32px_0_rgba(255,255,255,0.1),0_0_40px_3px_rgba(6,182,212,0.4)] after:absolute after:inset-0 after:rounded-full after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 container mx-auto px-4 md:px-6">
+            <div id="main-text-content" class="max-w-3xl mx-auto text-center">
+                <!-- Left split content container -->
+                <div id="content-left" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12">
+                    <div class="h-2 w-2 rounded-full bg-rose-500/80"></div>
+                    <span class="text-sm text-white/60 tracking-wide">
+                        AI-Powered Document Analysis
+                    </span>
+                </div>
+
+                <!-- Middle split content container -->
+                <div id="content-middle">
+                    <h1 id="ask-docs-title" class="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
+                            Ask Your
+                        </span>
+                        <br />
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300">
+                            Documents
+                        </span>
+                    </h1>
+                </div>
+
+                <!-- Right split content container -->
+                <div id="content-right">
+                    <p class="text-base sm:text-lg md:text-xl text-white/40 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
+                        Simply upload your files, ask any question, and let our intelligent AI provide you with precise answers and summaries in seconds.
+                    </p>
+                </div>
+
+                <!-- Upload Component (initially hidden) -->
+                <div id="upload-component" class="mt-10 max-w-md mx-auto"> <!-- style="display: none; opacity: 0;" is handled by CSS now -->
+                    <div id="file-upload-container">
+                        <div id="drop-zone"
+                            class="relative rounded-2xl p-8 text-center cursor-pointer bg-zinc-900 border border-zinc-700 shadow-sm hover:shadow-md backdrop-blur group"
+                            style="transition: border-color 0.2s ease, transform 0.2s ease;">
+                            <div class="flex flex-col items-center gap-5">
+                                <div id="upload-icon-container" class="relative" style="transition: transform 1.5s ease-in-out;">
+                                    <div id="upload-icon-glow"
+                                        class="absolute -inset-4 bg-blue-400/10 rounded-full blur-md"
+                                        style="display: none; transition: opacity 2s ease-in-out, transform 2s ease-in-out;"></div>
+                                    <svg id="upload-cloud-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="w-16 h-16 md:w-20 md:h-20 drop-shadow-sm text-zinc-300 group-hover:text-blue-500 transition-colors duration-300">
+                                        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+                                        <path d="M12 12v9"/><path d="m16 16-4-4-4 4"/>
+                                    </svg>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <h3 id="drop-zone-title" class="text-xl md:text-2xl font-semibold text-zinc-100">
+                                        Upload your files
+                                    </h3>
+                                    <p id="drop-zone-subtitle" class="text-zinc-300 md:text-lg max-w-md mx-auto">
+                                        Drag & drop files here, or <span class="text-blue-500 font-medium">browse</span>
+                                    </p>
+                                    <p class="text-sm text-zinc-400">
+                                        Supports images, doc, pdf, and more
+                                    </p>
+                                </div>
+
+                                <input id="file-input-element" type="file" multiple hidden
+                                    accept="image/*,application/pdf,video/*,audio/*,text/*,application/zip" />
+                            </div>
+                        </div>
+
+                        <div id="uploaded-files-section" class="mt-8" style="opacity: 0; transition: opacity 0.3s ease;">
+                            <!-- Document contains heading - hidden until Ask button is clicked -->
+                            <div id="document-contains-heading" class="mb-12 w-full flex justify-center relative" style="display: none;">
+                                <h4 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight whitespace-nowrap relative z-10">
+                                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300">Document contains</span>
+                                </h4>
+                            </div>
+                            <div id="files-header" class="flex justify-between items-center mb-3 px-2" style="display: none;">
+                                <h3 id="uploaded-files-title" class="font-semibold text-lg md:text-xl text-zinc-200">
+                                    Uploaded files (0)
+                                </h3>
+                                <div class="flex items-center space-x-3">
+                                    <button id="ask-button"
+                                        class="interactive-hover-btn text-sm font-medium text-white bg-black/80 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 transition-all duration-300 rounded-full px-4 py-2"
+                                        style="display: none;">
+                                        <span class="btn-text">Ask</span>
+                                        <div class="hover-content text-white">
+                                            <span>Ask</span>
+                                            <svg class="arrow-right" viewBox="0 0 24 24">
+                                                <path d="M5 12h14"></path>
+                                                <path d="M12 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="btn-bg-dot"></div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="files-list-container" class="relative min-h-[190px]">
+                                <!-- Files will be paginated here -->
+                            </div>
+
+                            <div id="files-pagination" class="pagination mt-4" style="display: none;">
+                                <!-- Pagination buttons will be generated here -->
+                            </div>
+
+                            
+                            
+                            <!-- Settings Panel - Initially hidden, shown after clicking Ask -->
+                            <div id="settings-panel" class="settings-panel p-4 w-full" style="display: none;">
+                                <div class="flex flex-col gap-3 mt-2">
+                                    <!-- Text Only Option -->
+                                    <div class="settings-card rounded-lg p-4 flex items-center justify-between">
+                                        <span class="text-white text-base font-medium">Text</span>
+                                        <label class="liquid-toggle-switch default">
+                                            <input type="checkbox" class="liquid-toggle-input" checked id="toggle-text-only">
+                                            <svg viewBox="0 0 52 32" filter="url(#goo)" class="liquid-toggle-svg">
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-1" cx="16" cy="16" r="10" />
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-2" cx="36" cy="16" r="10" />
+                                                <circle class="liquid-toggle-drop-circle" cx="35" cy="-1" r="2.5" />
+                                            </svg>
+                                        </label>
+                                    </div>
+
+                                    <!-- OCR Option -->
+                                    <div class="settings-card rounded-lg p-4 flex items-center justify-between">
+                                        <span class="text-white text-base font-medium">OCR</span>
+                                        <label class="liquid-toggle-switch default">
+                                            <input type="checkbox" class="liquid-toggle-input" id="toggle-ocr">
+                                            <svg viewBox="0 0 52 32" filter="url(#goo)" class="liquid-toggle-svg">
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-1" cx="16" cy="16" r="10" />
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-2" cx="36" cy="16" r="10" />
+                                                <circle class="liquid-toggle-drop-circle" cx="35" cy="-1" r="2.5" />
+                                            </svg>
+                                        </label>
+                                    </div>
+
+                                    <!-- Handwritten Text Option -->
+                                    <div class="settings-card rounded-lg p-4 flex items-center justify-between">
+                                        <span class="text-white text-base font-medium">Handwritten</span>
+                                        <label class="liquid-toggle-switch default">
+                                            <input type="checkbox" class="liquid-toggle-input" id="toggle-handwritten">
+                                            <svg viewBox="0 0 52 32" filter="url(#goo)" class="liquid-toggle-svg">
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-1" cx="16" cy="16" r="10" />
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-2" cx="36" cy="16" r="10" />
+                                                <circle class="liquid-toggle-drop-circle" cx="35" cy="-1" r="2.5" />
+                                            </svg>
+                                        </label>
+                                    </div>
+
+                                    <!-- Images Option -->
+                                    <div class="settings-card rounded-lg p-4 flex items-center justify-between">
+                                        <span class="text-white text-base font-medium">Images</span>
+                                        <label class="liquid-toggle-switch default">
+                                            <input type="checkbox" class="liquid-toggle-input" id="toggle-images">
+                                            <svg viewBox="0 0 52 32" filter="url(#goo)" class="liquid-toggle-svg">
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-1" cx="16" cy="16" r="10" />
+                                                <circle class="liquid-toggle-circle liquid-toggle-circle-2" cx="36" cy="16" r="10" />
+                                                <circle class="liquid-toggle-drop-circle" cx="35" cy="-1" r="2.5" />
+                                            </svg>
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Process button removed, functionality moved to Ask button -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80 pointer-events-none"></div>
+    </div>
+
+    <div id="hover-indicator">Let's ask</div>
+
+    <script>
+        // === START: Animated Background for 'Document Contains' Heading ===
+        let bgAnimCanvas, bgAnimCtx, bgAnimAnimationFrameId;
+        let bgAnimNumSquaresX, bgAnimNumSquaresY;
+        let bgAnimGridOffset = { x: 0, y: 0 };
+        const bgAnimConfig = { direction: "diagonal", speed: 0.2, borderColor: "rgba(100, 100, 100, 0.15)", squareSize: 25, canvasBackgroundColor: "rgba(0, 0, 0, 0)", canvasInitialWidth: null, canvasInitialHeight: null, };
+        function bgAnimResizeCanvas() { if (!bgAnimCanvas || !document.body.contains(bgAnimCanvas)) return; const dpr = window.devicePixelRatio || 1; const newWidth = window.innerWidth; const newHeight = window.innerHeight; if (newWidth === 0 || newHeight === 0) return; bgAnimCanvas.width = newWidth * dpr; bgAnimCanvas.height = newHeight * dpr; bgAnimCanvas.style.width = `${newWidth}px`; bgAnimCanvas.style.height = `${newHeight}px`; if (bgAnimCtx) { bgAnimCtx.scale(dpr, dpr); } bgAnimNumSquaresX = Math.ceil(newWidth / bgAnimConfig.squareSize) + 2; bgAnimNumSquaresY = Math.ceil(newHeight / bgAnimConfig.squareSize) + 2; if (bgAnimCtx && bgAnimCanvas.style.display !== 'none') { bgAnimDrawGrid(); } }
+        function bgAnimDrawGrid() { if (!bgAnimCtx || !bgAnimCanvas) return; const currentCanvasWidth = bgAnimCanvas.width / (window.devicePixelRatio || 1); const currentCanvasHeight = bgAnimCanvas.height / (window.devicePixelRatio || 1); bgAnimCtx.clearRect(0, 0, currentCanvasWidth, currentCanvasHeight); bgAnimCtx.lineWidth = 0.5; bgAnimCtx.strokeStyle = bgAnimConfig.borderColor; const offsetX = bgAnimGridOffset.x % bgAnimConfig.squareSize; const offsetY = bgAnimGridOffset.y % bgAnimConfig.squareSize; for (let i = -1; i < bgAnimNumSquaresX; i++) { for (let j = -1; j < bgAnimNumSquaresY; j++) { const squareX = (i * bgAnimConfig.squareSize) - offsetX; const squareY = (j * bgAnimConfig.squareSize) - offsetY; bgAnimCtx.strokeRect(squareX, squareY, bgAnimConfig.squareSize, bgAnimConfig.squareSize); } } }
+        function bgAnimUpdateAnimation() { if (!bgAnimCanvas || !document.body.contains(bgAnimCanvas) || bgAnimCanvas.style.display === 'none') { if (bgAnimAnimationFrameId) { cancelAnimationFrame(bgAnimAnimationFrameId); bgAnimAnimationFrameId = null; } return; } const effectiveSpeed = bgAnimConfig.speed; switch (bgAnimConfig.direction) { case "right": bgAnimGridOffset.x -= effectiveSpeed; break; case "left": bgAnimGridOffset.x += effectiveSpeed; break; case "up": bgAnimGridOffset.y += effectiveSpeed; break; case "down": bgAnimGridOffset.y -= effectiveSpeed; break; case "diagonal": bgAnimGridOffset.x -= effectiveSpeed; bgAnimGridOffset.y -= effectiveSpeed; break; } bgAnimGridOffset.x = (bgAnimGridOffset.x % bgAnimConfig.squareSize + bgAnimConfig.squareSize) % bgAnimConfig.squareSize; bgAnimGridOffset.y = (bgAnimGridOffset.y % bgAnimConfig.squareSize + bgAnimConfig.squareSize) % bgAnimConfig.squareSize; bgAnimDrawGrid(); bgAnimAnimationFrameId = requestAnimationFrame(bgAnimUpdateAnimation); }
+        function initAnimatedBackground() { bgAnimCanvas = document.getElementById('animated-background-canvas'); if (!bgAnimCanvas) { console.error("Animated background canvas not found!"); return; } bgAnimCtx = bgAnimCanvas.getContext('2d'); if (!bgAnimCtx) { console.error("Failed to get 2D context for animated background canvas!"); return; } bgAnimCanvas.style.display = 'block'; bgAnimResizeCanvas(); if (bgAnimAnimationFrameId) { cancelAnimationFrame(bgAnimAnimationFrameId); } bgAnimAnimationFrameId = requestAnimationFrame(bgAnimUpdateAnimation); window.addEventListener('resize', bgAnimResizeCanvas); }
+        function stopAnimatedBackground() { if (bgAnimAnimationFrameId) { cancelAnimationFrame(bgAnimAnimationFrameId); bgAnimAnimationFrameId = null; } if (bgAnimCanvas) { bgAnimCanvas.style.display = 'none'; if(bgAnimCtx) { const dpr = window.devicePixelRatio || 1; bgAnimCtx.clearRect(0, 0, bgAnimCanvas.width / dpr, bgAnimCanvas.height / dpr);}} window.removeEventListener('resize', bgAnimResizeCanvas); }
+        // === END: Animated Background ===
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const askDocsTitle = document.getElementById('ask-docs-title');
+            const hoverIndicator = document.getElementById('hover-indicator');
+            const uploadComponent = document.getElementById('upload-component');
+            const mainTextContent = document.getElementById('main-text-content');
+            const contentLeft = document.getElementById('content-left');
+            const contentMiddle = document.getElementById('content-middle');
+            const contentRight = document.getElementById('content-right');
+            const shape1 = document.getElementById('elegant-shape-1');
+            const shape2 = document.getElementById('elegant-shape-2');
+            const shape3 = document.getElementById('elegant-shape-3');
+            const shape4 = document.getElementById('elegant-shape-4');
+            const shape5 = document.getElementById('elegant-shape-5');
+
+            const innerShape1 = shape1 ? shape1.querySelector('.elegant-shape-inner-animated') : null;
+            const innerShape2 = shape2 ? shape2.querySelector('.elegant-shape-inner-animated') : null;
+            const innerShape3 = shape3 ? shape3.querySelector('.elegant-shape-inner-animated') : null;
+            const innerShape4 = shape4 ? shape4.querySelector('.elegant-shape-inner-animated') : null;
+            const innerShape5 = shape5 ? shape5.querySelector('.elegant-shape-inner-animated') : null;
+
+            if (askDocsTitle && hoverIndicator) {
+                 askDocsTitle.addEventListener('mouseenter', () => { if (!contentMiddle || !contentMiddle.classList.contains('animate-content-middle')) { hoverIndicator.style.display = 'block'; } });
+                 askDocsTitle.addEventListener('mousemove', (event) => { if (!contentMiddle || !contentMiddle.classList.contains('animate-content-middle')) { hoverIndicator.style.left = event.clientX + 'px'; hoverIndicator.style.top = event.clientY + 'px'; } });
+                 askDocsTitle.addEventListener('mouseleave', () => { hoverIndicator.style.display = 'none'; });
+            }
+
+            if (askDocsTitle) {
+                askDocsTitle.addEventListener('click', () => {
+                    if (hoverIndicator) hoverIndicator.style.display = 'none';
+                    if (shape1) shape1.classList.add('animate-shape-move-left'); 
+                    if (shape3) shape3.classList.add('animate-shape-move-left');
+                    if (shape5) shape5.classList.add('animate-shape-move-left');
+                    if (shape2) shape2.classList.add('animate-shape-move-right');
+                    if (shape4) shape4.classList.add('animate-shape-move-right');
+                    if (innerShape1) innerShape1.classList.remove('elegant-shape-inner-animated'); 
+                    if (innerShape2) innerShape2.classList.remove('elegant-shape-inner-animated');
+                    if (innerShape3) innerShape3.classList.remove('elegant-shape-inner-animated');
+                    if (innerShape4) innerShape4.classList.remove('elegant-shape-inner-animated');
+                    if (innerShape5) innerShape5.classList.remove('elegant-shape-inner-animated');
+                    if (contentLeft) contentLeft.classList.add('animate-content-left');
+                    if (contentMiddle) contentMiddle.classList.add('animate-content-middle');
+                    if (contentRight) contentRight.classList.add('animate-content-right');
+                    setTimeout(() => {
+                        if (uploadComponent) {
+                            if (contentLeft) contentLeft.style.display = 'none';
+                            if (contentMiddle) contentMiddle.style.display = 'none';
+                            if (contentRight) contentRight.style.display = 'none';
+                            uploadComponent.style.display = 'block';
+                            void uploadComponent.offsetWidth; 
+                            uploadComponent.style.opacity = '1';
+                            initUploadFunctionality();
+                        }
+                    }, 1500);
+                    askDocsTitle.style.pointerEvents = 'none';
+                }, { once: true });
+            }
+
+            function initUploadFunctionality() {
+                const ICONS = { 
+                    FileIcon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 md:w-20 md:h-20 text-zinc-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+                    FileIconSmall: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0 text-blue-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+                    Trash2Icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 cursor-pointer text-zinc-500 hover:text-red-400 transition-colors duration-200"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+                    LoaderIcon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 animate-spin-custom text-blue-500"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>`,
+                    CheckCircleIcon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-emerald-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+                };
+                const dropZone = document.getElementById('drop-zone');
+                const fileInputElement = document.getElementById('file-input-element');
+                const uploadIconContainer = document.getElementById('upload-icon-container');
+                const uploadIconGlow = document.getElementById('upload-icon-glow');
+                const uploadCloudIcon = document.getElementById('upload-cloud-icon');
+                const dropZoneTitle = document.getElementById('drop-zone-title');
+                const dropZoneSubtitle = document.getElementById('drop-zone-subtitle');
+                const uploadedFilesSection = document.getElementById('uploaded-files-section');
+                const filesHeader = document.getElementById('files-header');
+                const uploadedFilesTitle = document.getElementById('uploaded-files-title');
+                const askButton = document.getElementById('ask-button');
+                const filesListContainer = document.getElementById('files-list-container');
+                const paginationContainer = document.getElementById('files-pagination');
+                const settingsPanel = document.getElementById('settings-panel');
+                const documentContainsHeading = document.getElementById('document-contains-heading');
+
+                let files = []; 
+                let isDragging = false;
+                let currentPage = 1;
+                const filesPerPage = 2; 
+                let inSettingsMode = false;
+                let isCurrentlyProcessingFull = false; 
+
+                function updateAskButtonState() {
+                    if (!askButton) return;
+                    const successfullyStagedFiles = files.filter(f => f.statusMessage === "Ready" && f.stagingId);
+                    
+                    const btnTextSpan = askButton.querySelector('.btn-text');
+                    const hoverTextSpan = askButton.querySelector('.hover-content span');
+
+                    if (isCurrentlyProcessingFull) {
+                        askButton.disabled = true;
+                        if (btnTextSpan) btnTextSpan.textContent = "Processing...";
+                        if (hoverTextSpan) hoverTextSpan.textContent = "Processing...";
+                        askButton.classList.add('animate-pulse');
+                        askButton.style.display = 'block'; 
+                    } else if (inSettingsMode) { 
+                        askButton.disabled = successfullyStagedFiles.length === 0;
+                        if (btnTextSpan) btnTextSpan.textContent = "Process";
+                        if (hoverTextSpan) hoverTextSpan.textContent = "Process";
+                        askButton.classList.remove('animate-pulse');
+                        askButton.style.display = 'block'; 
+                    } else { 
+                        askButton.disabled = successfullyStagedFiles.length === 0;
+                        if (btnTextSpan) btnTextSpan.textContent = "Ask";
+                        if (hoverTextSpan) hoverTextSpan.textContent = "Ask";
+                        askButton.classList.remove('animate-pulse');
+                        askButton.style.display = successfullyStagedFiles.length > 0 ? 'block' : 'none';
+                    }
+                }
+                
+                const formatFileSize = (bytes) => {
+                    if (!bytes) return "0 Bytes"; const k = 1024; const sizes = ["Bytes", "KB", "MB", "GB"]; const i = Math.floor(Math.log(bytes) / Math.log(k)); return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+                };
+
+                async function stageFileOnServer(fileWrapper) {
+                    fileWrapper.progress = 10; 
+                    fileWrapper.statusMessage = "Uploading...";
+                    renderFiles(); 
+
+                    const formData = new FormData();
+                    formData.append('file', fileWrapper.file); 
+                    formData.append('originalFilename', fileWrapper.name);
+
+                    try {
+                        const response = await fetch('/stage_file', { method: 'POST', body: formData });
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            console.error(`Staging failed for ${fileWrapper.name}:`, result.error);
+                            fileWrapper.progress = 0;
+                            fileWrapper.statusMessage = "Upload Failed";
+                        } else {
+                            console.log(`Staging success for ${fileWrapper.name}:`, result);
+                            fileWrapper.progress = 100;
+                            fileWrapper.statusMessage = "Ready"; 
+                            fileWrapper.stagingId = result.staging_id; 
+                        }
+                    } catch (error) {
+                        console.error(`Error staging file ${fileWrapper.name}:`, error);
+                        fileWrapper.progress = 0;
+                        fileWrapper.statusMessage = "Network Error";
+                    }
+                    renderFiles(); 
+                }
+
+                const handleFiles = (fileListFromInput) => {
+                    const newFileWrappers = Array.from(fileListFromInput).map((rawFile) => ({
+                        id: `file-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                        name: rawFile.name,
+                        size: rawFile.size,
+                        type: rawFile.type,
+                        file: rawFile, 
+                        progress: 0,
+                        statusMessage: "Pending Stage",
+                        stagingId: null 
+                    }));
+                    files = [...files, ...newFileWrappers];
+                    renderFiles(); 
+                    newFileWrappers.forEach(fw => stageFileOnServer(fw));
+                };
+
+                const removeFile = (fileId) => {
+                    // Future: If file is already staged, might want to send a request to backend to delete staged file
+                    // For now, just removes from frontend `files` array
+                    const fileToRemove = files.find(f => f.id === fileId);
+                    if (fileToRemove && fileToRemove.stagingId) {
+                        console.log(`File ${fileToRemove.name} (stagingId: ${fileToRemove.stagingId}) removed from UI. Consider backend cleanup for staged file.`);
+                        // Example:
+                        // fetch(`/cleanup_staged_file?staging_id=${fileToRemove.stagingId}`, {method: 'POST'})
+                        //   .then(res => console.log(`Cleanup request for ${fileToRemove.stagingId} sent.`))
+                        //   .catch(err => console.error(`Cleanup error for ${fileToRemove.stagingId}:`, err));
+                    }
+                    files = files.filter((f) => f.id !== fileId);
+                    renderFiles();
+                };
+                
+                const updateDropZoneAppearance = () => {
+                    if (!dropZone || !uploadIconContainer || !uploadIconGlow || !uploadCloudIcon || !dropZoneTitle || !dropZoneSubtitle) return;
+                    dropZone.style.borderColor = isDragging ? '#3b82f6' : '#3f3f46';
+                    dropZone.style.transform = isDragging ? 'scale(1.02)' : 'scale(1)';
+                    dropZone.classList.toggle('ring-4', isDragging);
+                    dropZone.classList.toggle('ring-blue-400/30', isDragging);
+                    if(uploadIconContainer) uploadIconContainer.style.animation = isDragging ? 'bounce-y 1.5s ease-in-out infinite' : 'none';
+                    if(uploadIconGlow) uploadIconGlow.style.display = isDragging ? 'block' : 'none';
+                    if(uploadIconGlow) uploadIconGlow.style.animation = isDragging ? 'pulse-glow-effect 2s ease-in-out infinite' : 'none';
+                    if(uploadCloudIcon) uploadCloudIcon.classList.toggle('text-blue-500', isDragging);
+                    if(uploadCloudIcon) uploadCloudIcon.classList.toggle('text-zinc-300', !isDragging);
+                    if (isDragging) {
+                        if(dropZoneTitle) dropZoneTitle.textContent = "Drop files here";
+                        if(dropZoneSubtitle) dropZoneSubtitle.innerHTML = `<span class="font-medium text-blue-500">Release to upload</span>`;
+                    } else {
+                        if(dropZoneTitle) dropZoneTitle.textContent = files.length ? "Add more files" : "Upload your files";
+                        if(dropZoneSubtitle) dropZoneSubtitle.innerHTML = `Drag & drop files here, or <span class="text-blue-500 font-medium">browse</span>`;
+                    }
+                };
+
+                const renderFiles = () => {
+                    if (files.length > 0) {
+                        if(uploadedFilesSection) uploadedFilesSection.style.opacity = '1';
+                        if(filesHeader) filesHeader.style.display = 'flex';
+                        if(uploadedFilesTitle) uploadedFilesTitle.textContent = `Uploaded files (${files.length})`;
+                    } else {
+                        if(uploadedFilesSection) uploadedFilesSection.style.opacity = '0';
+                        setTimeout(() => { if(files.length === 0 && filesHeader && uploadedFilesTitle) {
+                            filesHeader.style.display = 'none';
+                            uploadedFilesTitle.textContent = `Uploaded files (0)`;
+                        } }, 300); // Delay to allow opacity transition
+                    }
+
+                    if (!filesListContainer) return; 
+                    filesListContainer.innerHTML = ''; // Clear previous items
+                    const totalPages = Math.ceil(files.length / filesPerPage);
+                    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+                    else if (totalPages === 0) currentPage = 1;
+
+
+                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                        const startIdx = (pageNum - 1) * filesPerPage;
+                        const endIdx = Math.min(startIdx + filesPerPage, files.length);
+                        const pageFiles = files.slice(startIdx, endIdx);
+                        const pageContainer = document.createElement('div');
+                        pageContainer.id = `files-page-${pageNum}`;
+                        pageContainer.className = `files-page ${pageNum === currentPage ? 'active' : ''}`;
+                        
+                        pageFiles.forEach(file => {
+                            const isReadyForProcessing = file.statusMessage === "Ready";
+                            const isFullyProcessed = file.statusMessage === "Processed";
+                            const isUploading = file.statusMessage === "Uploading..." || file.statusMessage === "Pending Stage";
+                            const hasFailed = file.statusMessage === "Upload Failed" || file.statusMessage === "Network Error" || file.statusMessage === "Processing Failed";
+
+                            const displayProgress = (isReadyForProcessing || isFullyProcessed) ? 100 : file.progress;
+                            let progressBarColorClass = 'bg-blue-500';
+                            if (isReadyForProcessing || isFullyProcessed) progressBarColorClass = 'bg-emerald-500';
+                            else if (hasFailed) progressBarColorClass = 'bg-red-500';
+
+                            let actionIconHtml = ICONS.LoaderIcon;
+                            if (isUploading) actionIconHtml = ICONS.LoaderIcon; // Explicitly
+                            else if (isFullyProcessed) actionIconHtml = ICONS.CheckCircleIcon; 
+                            else if (isReadyForProcessing || hasFailed) { 
+                                actionIconHtml = `<span class="remove-file-button" data-fileid="${file.id}" aria-label="Remove file">${ICONS.Trash2Icon}</span>`;
+                            }
+                            
+                            let thumbnailHtml = ICONS.FileIcon; 
+                            if (file.file && file.type.startsWith("image/")) {
+                                thumbnailHtml = `<img src="${URL.createObjectURL(file.file)}" alt="${file.name}" class="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border border-zinc-700 shadow-sm">`;
+                            } else if (file.file && file.type.startsWith("video/")) {
+                                thumbnailHtml = `<video src="${URL.createObjectURL(file.file)}" class="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border border-zinc-700 shadow-sm" controls="false" muted loop playsinline preload="metadata"></video>`;
+                            }
+
+                            const fileItem = document.createElement('div'); 
+                            fileItem.id = `file-item-${file.id}`;
+                            fileItem.className = "file-item px-4 py-4 flex items-start gap-4 rounded-xl bg-zinc-800 shadow hover:shadow-md transition-all duration-200 mb-3";
+                            fileItem.innerHTML = `
+                                <div class="relative flex-shrink-0">${thumbnailHtml}
+                                    ${isFullyProcessed ? `<div class="absolute -right-2 -bottom-2 bg-zinc-800 rounded-full shadow-sm" style="opacity:1; transform: scale(1); animation: fadeInScale 0.3s 0.1s forwards;">${ICONS.CheckCircleIcon}</div>` : ''}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-col gap-1 w-full">
+                                        <div class="flex items-center gap-2 min-w-0">${ICONS.FileIconSmall}<h4 class="font-medium text-base md:text-lg truncate text-zinc-200" title="${file.name}">${file.name}</h4></div>
+                                        <div class="flex items-center justify-between gap-3 text-sm text-zinc-400">
+                                            <span class="text-xs md:text-sm">${formatFileSize(file.size)}</span>
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="font-medium">${file.statusMessage}</span>
+                                                ${actionIconHtml}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="w-full h-2 bg-zinc-700 rounded-full overflow-hidden mt-3">
+                                        <div class="h-full rounded-full shadow-inner ${progressBarColorClass}" style="width: ${displayProgress}%; transition: width 0.2s ease-out, background-color 0.2s ease-out;"></div>
+                                    </div>
+                                </div>`;
+                            pageContainer.appendChild(fileItem);
+                        });
+                        filesListContainer.appendChild(pageContainer);
+                    }
+
+                    if (paginationContainer) {
+                        if (totalPages > 1) {
+                            paginationContainer.style.display = 'flex'; paginationContainer.innerHTML = '';
+                            const prevButton = document.createElement('button'); prevButton.className = 'pagination-btn'; prevButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`; prevButton.disabled = currentPage === 1; prevButton.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderFiles(); }}); paginationContainer.appendChild(prevButton);
+                            for (let i = 1; i <= totalPages; i++) { const pageButton = document.createElement('button'); pageButton.className = `pagination-btn ${i === currentPage ? 'active' : ''}`; pageButton.textContent = i; pageButton.addEventListener('click', () => { currentPage = i; renderFiles(); }); paginationContainer.appendChild(pageButton); }
+                            const nextButton = document.createElement('button'); nextButton.className = 'pagination-btn'; nextButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`; nextButton.disabled = currentPage === totalPages; nextButton.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderFiles(); }}); paginationContainer.appendChild(nextButton);
+                        } else { paginationContainer.style.display = 'none'; }
+                    }
+                    document.querySelectorAll('.remove-file-button').forEach(button => button.addEventListener('click', (e) => { e.stopPropagation(); removeFile(button.dataset.fileid); }));
+                    updateDropZoneAppearance();
+                    updateAskButtonState();
+                };
+
+                if (dropZone) { 
+                    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); isDragging = true; updateDropZoneAppearance(); });
+                    dropZone.addEventListener('dragleave', () => { isDragging = false; updateDropZoneAppearance(); });
+                    dropZone.addEventListener('drop', (e) => { e.preventDefault(); isDragging = false; updateDropZoneAppearance(); handleFiles(e.dataTransfer.files); });
+                    if (fileInputElement) dropZone.addEventListener('click', () => fileInputElement.click());
+                    dropZone.addEventListener('mouseenter', () => { if (!isDragging && dropZone) dropZone.style.transform = 'scale(1.01)'; });
+                    dropZone.addEventListener('mouseleave', () => { if (!isDragging && dropZone) dropZone.style.transform = 'scale(1)'; });
+                }
+                if (fileInputElement) fileInputElement.addEventListener('change', (e) => { if (e.target.files) handleFiles(e.target.files); e.target.value = null; });
+
+                async function triggerFullProcessing(stagedFileWrappers, processingOptions) {
+                    if (isCurrentlyProcessingFull) { console.warn("Full processing already in progress."); return; }
+                    isCurrentlyProcessingFull = true;
+                    stagedFileWrappers.forEach(fw => { if(fw.stagingId) fw.statusMessage = "Queued..."; });
+                    renderFiles(); 
+
+                    const stagingIds = stagedFileWrappers.map(fw => fw.stagingId).filter(id => id != null);
+                    if (stagingIds.length === 0) {
+                        alert("No files are ready (staged) for processing.");
+                        isCurrentlyProcessingFull = false;
+                        renderFiles(); 
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/process_staged_files', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ staging_ids: stagingIds, options: processingOptions }) });
+                        const result = await response.json();
+                        isCurrentlyProcessingFull = false; 
+
+                        if (!response.ok) {
+                            console.error('Full backend processing failed:', result);
+                            alert(`Error during full processing: ${result.error || response.statusText}`);
+                            stagedFileWrappers.forEach(fw => { if(fw.stagingId) fw.statusMessage = "Processing Failed"; });
+                        } else {
+                            console.log('Full backend processing successful:', result);
+                            const successfullyProcessedDocsForChat = [];
+                            if (result.processed_documents && Array.isArray(result.processed_documents)) {
+                                result.processed_documents.forEach(processedDoc => {
+                                    const frontendFile = files.find(f => f.stagingId === processedDoc.staging_id || (f.name === processedDoc.filename && f.stagingId) ); // Match by stagingId first, then filename if stagingId was somehow lost but name matches
+                                    if (frontendFile) {
+                                        frontendFile.statusMessage = "Processed";
+                                        frontendFile.collectionName = processedDoc.collection_name; 
+                                    }
+                                    if (processedDoc.filename) { 
+                                       successfullyProcessedDocsForChat.push(processedDoc.filename);
+                                    }
+                                });
+                            }
+                            if (successfullyProcessedDocsForChat.length > 0) {
+                                localStorage.setItem('activeDocs', JSON.stringify(successfullyProcessedDocsForChat));
+                                // Redirect immediately after setting localStorage
+                                window.location.href = '/chatui';
+                            } else {
+                                alert("Backend processing finished, but no documents were confirmed as fully processed.");
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Network error during full processing:', error);
+                        alert('A network error occurred during full processing.');
+                        isCurrentlyProcessingFull = false;
+                        stagedFileWrappers.forEach(fw => { if(fw.stagingId) fw.statusMessage = "Network Error (Proc)"; });
+                    }
+                    renderFiles(); // This will update statuses, including "Processed"
+                }
+
+                if (askButton) {
+                    updateAskButtonState(); 
+                    askButton.addEventListener('click', () => {
+                        const btnBgDot = askButton.querySelector('.btn-bg-dot'); if (btnBgDot) { /* ... */ }
+                        if (inSettingsMode) { 
+                            const readyFiles = files.filter(f => f.statusMessage === "Ready" && f.stagingId);
+                            if (readyFiles.length === 0) { alert("Please upload and wait for files to be ready for processing."); return; }
+                            const opts = { 
+                                textOnly: document.getElementById('toggle-text-only')?.checked ?? true,
+                                ocr: document.getElementById('toggle-ocr')?.checked ?? false,
+                                handwritten: document.getElementById('toggle-handwritten')?.checked ?? false,
+                                images: document.getElementById('toggle-images')?.checked ?? false
+                            };
+                            triggerFullProcessing(readyFiles, opts);
+                        } else { 
+                            showSettingsPanel(); 
+                        }
+                    });
+                }
+
+                function showSettingsPanel() { 
+                    inSettingsMode = true;
+                    if (dropZone) dropZone.style.transition = 'opacity 0.3s ease'; 
+                    if (filesListContainer) filesListContainer.style.transition = 'opacity 0.3s ease';
+                    if (paginationContainer) paginationContainer.style.transition = 'opacity 0.3s ease';
+                    if (documentContainsHeading) { documentContainsHeading.style.display = 'flex'; initAnimatedBackground(); }
+                    if (dropZone) dropZone.style.opacity = '0'; if (filesListContainer) filesListContainer.style.opacity = '0'; if (paginationContainer) paginationContainer.style.opacity = '0';
+                    
+                    const btnTextSpan = askButton?.querySelector('.btn-text');
+                    const hoverTextSpan = askButton?.querySelector('.hover-content span');
+                    if (askButton) {
+                        if (btnTextSpan) btnTextSpan.textContent = "Process"; 
+                        if (hoverTextSpan) hoverTextSpan.textContent = "Process"; 
+                        askButton.classList.add('px-5', 'process-mode'); 
+                        askButton.classList.remove('px-4'); 
+                    }
+                    
+                    setTimeout(() => {
+                        if (dropZone) dropZone.style.display = 'none'; if (filesListContainer) filesListContainer.style.display = 'none'; if (paginationContainer) paginationContainer.style.display = 'none';
+                        if (settingsPanel) { settingsPanel.style.display = 'block'; void settingsPanel.offsetWidth; settingsPanel.classList.add('show'); setupSettingsPanelListeners(); }
+                        updateAskButtonState(); 
+                    }, 400);
+                }
+                
+                function setupSettingsPanelListeners() { 
+                    const liquidToggleSwitchesInPanel = document.querySelectorAll('#settings-panel .liquid-toggle-switch');
+                    liquidToggleSwitchesInPanel.forEach(toggleSwitch => {
+                        const input = toggleSwitch.querySelector('.liquid-toggle-input');
+                        if (input) { const newInput = input.cloneNode(true); input.parentNode.replaceChild(newInput, input); if (newInput.checked) toggleSwitch.classList.add('is-checked'); else toggleSwitch.classList.remove('is-checked'); newInput.addEventListener('change', e => { if (e.target.checked) toggleSwitch.classList.add('is-checked'); else toggleSwitch.classList.remove('is-checked'); }); }
+                    });
+                }
+                renderFiles(); 
+                updateDropZoneAppearance();
+            } 
+        });
+    </script>
+</body>
+</html>
