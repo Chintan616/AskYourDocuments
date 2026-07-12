@@ -30,7 +30,7 @@ import pdfplumber
 import pytesseract
 import torch
 import tiktoken
-from pyngrok import conf, ngrok
+
 from langchain.chains.summarize import \
     load_summarize_chain
 from langchain.docstore.document import Document

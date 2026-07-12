@@ -28,3 +28,4 @@ pgvector
 langchain-postgres
 gunicorn
 pytesseract
+
